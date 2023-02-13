@@ -30,6 +30,9 @@ namespace GLCCommonMethods
 	REGISTER_SINGLE_SAVE_OBJECT(GenerateCompoundWidgetParam);
 	REGISTER_SINGLE_SAVE_OBJECT(EnginePath);
 	REGISTER_SINGLE_SAVE_OBJECT(GenerateCompoundWidgetPath);
+	REGISTER_SINGLE_SAVE_OBJECT(GenerateProgramParam);
+	REGISTER_SINGLE_SAVE_OBJECT(ModifyCharactersPath);
+	REGISTER_SINGLE_SAVE_OBJECT(ModifyCharactersParam);
 
 	bool CheckPath(const FString& InPath);
 
@@ -37,7 +40,8 @@ namespace GLCCommonMethods
 
 	//通过Source里的某个文件找到根目录
 	bool GetSourceDirAndProgramNameByFileName(const FString& InFileName,FString& OutSourceDir,FString& OutProgramName);
-	
+
+	//根据给定信息找到文件的include(绝对路径)
 	bool GetFileIncludeByClassName(const FString& InClassName, const FString& InProgramName,
 		const FString& InSourceDir,FString& OutInclude);
 
@@ -52,6 +56,9 @@ namespace GLCCommonMethods
 	//生成CompoundWidget
 	void GenerateCompoundWidget(const FString& InTargetPath,const FString& InNewSlateName,const FString& OptionalParent = FString());
 
+	//遍历给定的文件夹，修改给定的字符
+	void ModifyCharactersIteration(const FString& InPath,const FString& InSearch,
+		const FString& InReplace,const FString& InOptionalCondition = FString());
 	//
 	//
 }

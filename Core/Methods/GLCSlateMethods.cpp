@@ -3,7 +3,9 @@
 #include <DesktopPlatformModule.h>
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateCompoundWidget.h"
+#include "GLCFileHelper\Slate\Main\MethodsSlate\ModifyCharacters.h"
 
+static const FVector2D WindowSize = FVector2D(1000,500);
 
 namespace GLCSlateMethods
 {
@@ -13,7 +15,7 @@ namespace GLCSlateMethods
 		TSharedPtr<SWindow> SettingWindow = 
 		SNew(SWindow)
 		.Title(FText::FromString(TEXT("设置")))
-		.ClientSize(FVector2D(700, 800))
+		.ClientSize(WindowSize)
 		[
 			SNew(SVerticalBox)
 
@@ -71,7 +73,7 @@ namespace GLCSlateMethods
 		TSharedPtr<SWindow> GenerateWindow =
 			SNew(SWindow)
 			.Title(FText::FromString(TEXT("生成新的程序")))
-			.ClientSize(FVector2D(700, 800))
+			.ClientSize(WindowSize)
 			[
 				SNew(SVerticalBox)
 
@@ -93,7 +95,7 @@ namespace GLCSlateMethods
 		TSharedPtr<SWindow> GenerateWindow =
 			SNew(SWindow)
 			.Title(FText::FromString(TEXT("生成新的程序")))
-			.ClientSize(FVector2D(700, 800))
+			.ClientSize(WindowSize)
 			[
 				SNew(SVerticalBox)
 
@@ -110,4 +112,25 @@ namespace GLCSlateMethods
 		FSlateApplication::Get().AddWindow(GenerateWindow.ToSharedRef());
 	}
 
+	void AddModifyCharactersWindow()
+	{
+		TSharedPtr<SWindow> GenerateWindow =
+			SNew(SWindow)
+			.Title(FText::FromString(TEXT("修改文件字符")))
+			.ClientSize(WindowSize)
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(EHorizontalAlignment::HAlign_Left)
+				.VAlign(EVerticalAlignment::VAlign_Top)
+				.Padding(4)
+				[
+					SNew(SModifyCharacters)
+				]
+			];
+
+		FSlateApplication::Get().AddWindow(GenerateWindow.ToSharedRef());
+	}
 }

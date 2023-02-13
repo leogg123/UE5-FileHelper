@@ -11,24 +11,6 @@ void SMainSlate::Construct(const FArguments& InArgs)
 	ChildSlot
 	[
 		SNew(SVerticalBox)
-
-		/*+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		.Padding(4.f)
-		[
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.HAlign(EHorizontalAlignment::HAlign_Left)
-			.VAlign(EVerticalAlignment::VAlign_Top)
-			.Padding(4.f)
-			[
-				SNew(SMethodsMenu)
-			]
-		]*/
 		
 		+SVerticalBox::Slot()
 		.AutoHeight()
@@ -48,7 +30,6 @@ void SMainSlate::Construct(const FArguments& InArgs)
 			]
 
 		]
-		
 	];
 }
 

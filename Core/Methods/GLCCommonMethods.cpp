@@ -190,6 +190,10 @@ namespace GLCCommonMethods
 					{
 						if (Data.Contains(InClassName))
 						{
+							int32 ClassIndex = Data.Find(InClassName);
+							int32 Index = Data.Find(TEXT(":"));
+							if(ClassIndex > Index) continue;
+							
 							FPaths::NormalizeFilename(InFileName);
 							TArray<FString> FileNameArr;
 							InFileName.ParseIntoArray(FileNameArr,TEXT("/"));
@@ -308,6 +312,72 @@ namespace GLCCommonMethods
 		}
 	}
 
+	void ModifyCharactersIteration(const FString& InPath, const FString& InSearch, 
+		const FString& InReplace,const FString& InOptionalCondition)
+	{
+		if(CheckPath(InPath))
+		{
+			FGLCOutputLog OutputLog;
+			int32 Count = 0;
+			
+			TArray<FString> FileNames;
+			IFileManager::Get().FindFilesRecursive(FileNames,*InPath,
+				TEXT("*"),true,false);
+			OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件 %d 个"),FileNames.Num()));
+			if(FileNames.Num())
+			{
+				for(FString& TempFileName : FileNames)
+				{
+					TArray<FString> FileData;
+					int32 LastCount = Count;
+					if(FFileHelper::LoadFileToStringArray(FileData,*TempFileName))
+					{
+						for(FString& InData : FileData)
+						{
+							if(!InOptionalCondition.IsEmpty())
+							{
+								if(InData.Contains(InOptionalCondition))
+								{
+									if(InData.ReplaceInline(*InSearch,*InReplace)) ++Count;
+								}
+							}
+							else
+							{
+								if(InData.ReplaceInline(*InSearch,*InReplace)) ++Count;
+							}
+							
+						}
+						IFileManager::Get().Delete(*TempFileName,true,true);
+
+						if(!InOptionalCondition.IsEmpty())
+						{
+							if(TempFileName.Contains(InOptionalCondition))
+							{
+								if(TempFileName.ReplaceInline(*InSearch,*InReplace)) ++Count;
+							}
+						}
+						else
+						{
+							if(TempFileName.ReplaceInline(*InSearch,*InReplace)) ++Count;
+						}
+						
+						FFileHelper::SaveStringArrayToFile(FileData,*TempFileName,
+							FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+
+						if(Count != LastCount)
+						{
+							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件被修改"),*TempFileName));
+							OutputLog.AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
+						}
+					}
+				}
+
+				OutputLog.AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
+				OutputLog.AddNewMessage(TEXT("完成 !"));
+			}
+		}
+	}
+
 	bool CheckPath(const FString& InPath)
 	{
 		if (!IFileManager::Get().DirectoryExists(*InPath))
@@ -339,23 +409,16 @@ FGLCOutputLog::FGLCOutputLog()
 		.Title(FText::FromString(TEXT("GLCFileHelperOutputLog")))
 		.ClientSize(FVector2D(1100, 500))
 		[
-			SNew(SVerticalBox)
+			SNew(SScrollBox)
+			.Orientation(EOrientation::Orient_Horizontal)
 
-			+SVerticalBox::Slot()
-			.FillHeight(1.f)
+			+ SScrollBox::Slot()
+			.HAlign(EHorizontalAlignment::HAlign_Fill)
+			.VAlign(EVerticalAlignment::VAlign_Fill)
 			[
-				SNew(SScrollBox)
-				.Orientation(EOrientation::Orient_Horizontal)
-
-				+ SScrollBox::Slot()
-				.HAlign(EHorizontalAlignment::HAlign_Fill)
-				.VAlign(EVerticalAlignment::VAlign_Fill)
-				[
-					SAssignNew(ScrollBox, SScrollBox)
-					.Orientation(EOrientation::Orient_Vertical)
-				]
+				SAssignNew(ScrollBox, SScrollBox)
+				.Orientation(EOrientation::Orient_Vertical)
 			]
-			
 		];
 	FSlateApplication::Get().AddWindow(LogWindow.ToSharedRef());
 }
@@ -385,13 +448,14 @@ void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType 
 	if (ScrollBox)
 	{
 		ScrollBox->AddSlot()
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		.VAlign(EVerticalAlignment::VAlign_Top)
+		.HAlign(EHorizontalAlignment::HAlign_Fill)
+		.VAlign(EVerticalAlignment::VAlign_Fill)
 		.Padding(4.f)
 		[
 			SNew(STextBlock)
 			.Text(FText::FromString(Log))
 			.ColorAndOpacity(Color)
+			.WrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping)
 		];
 	}
 }

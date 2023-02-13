@@ -56,6 +56,32 @@ void SMethodsSlateBase::ConstructMySlate()
 		.VAlign(EVerticalAlignment::VAlign_Top)
 		.Padding(4)
 		[
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(EHorizontalAlignment::HAlign_Left)
+			.VAlign(EVerticalAlignment::VAlign_Top)
+			.Padding(3)
+			[
+				SAssignNew(ParamText,SEditableTextBox)
+				.ToolTipText(GetParamToolTipText())
+				.Text(GetDefaultParamText())
+				.OnTextCommitted_Lambda(
+				[&](const FText& InText, ETextCommit::Type InType)
+				{
+					if (!ParamText) return;
+					OnParamTextCommitted(ParamText->GetText());
+				})
+			]
+		]
+
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(EHorizontalAlignment::HAlign_Left)
+		.VAlign(EVerticalAlignment::VAlign_Top)
+		.Padding(4)
+		[
 			SNew(SButton)
 			.Text(FText::FromString(TEXT("执行")))
 			.OnReleased_Lambda([&]()
@@ -63,6 +89,7 @@ void SMethodsSlateBase::ConstructMySlate()
 				OnExecuteButtonReleased();
 			})
 		]
+		
 	];
 }
 

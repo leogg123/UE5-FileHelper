@@ -6,34 +6,21 @@
 void SGenerateCompoundWidget::Construct(const FArguments& InArgs)
 {
 	ConstructMySlate();
+}
 
-	if(!MyVerticalBox) return;
+FText SGenerateCompoundWidget::GetDefaultParamText()
+{
+	return FText::FromString(GLCCommonMethods::GetGenerateCompoundWidgetParam());
+}
 
-	MyVerticalBox->InsertSlot(MyVerticalBox->NumSlots() - 1)
-	.AutoHeight()
-	.HAlign(EHorizontalAlignment::HAlign_Left)
-	.VAlign(EVerticalAlignment::VAlign_Top)
-	.Padding(3)
-	[
-		SNew(SHorizontalBox)
+void SGenerateCompoundWidget::OnParamTextCommitted(const FText& InText)
+{
+	GLCCommonMethods::SetGenerateCompoundWidgetParam(InText.ToString());
+}
 
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		.Padding(3)
-		[
-			SAssignNew(ParamText,SEditableTextBox)
-			.ToolTipText(FText::FromString(TEXT("填写新Slate的名称(不用加S)，可选(填写父类的完整名称)，用&&分割")))
-			.Text(FText::FromString(GLCCommonMethods::GetGenerateCompoundWidgetParam()))
-			.OnTextCommitted_Lambda(
-			[&](const FText& InText, ETextCommit::Type InType)
-			{
-				if (!ParamText) return;
-				GLCCommonMethods::SetGenerateCompoundWidgetParam(ParamText->GetText().ToString());
-			})
-		]
-	];
+FText SGenerateCompoundWidget::GetParamToolTipText()
+{
+	return FText::FromString(TEXT("填写新Slate的名称，可选(填写父类的完整名称)，用&&分割"));
 }
 
 FText SGenerateCompoundWidget::GetExplorePathText()

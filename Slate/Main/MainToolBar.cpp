@@ -85,5 +85,19 @@ TSharedRef<SWidget> SMainToolBar::GetMethodComboButtons()
 		{
 			GLCSlateMethods::AddGenerateCompoundWidgetWindow();
 		})
+	]
+
+	+SVerticalBox::Slot()
+	.AutoHeight()
+	.VAlign(EVerticalAlignment::VAlign_Top)
+	.HAlign(EHorizontalAlignment::HAlign_Center)
+	.Padding(4.f)
+	[
+		SNew(SButton)
+		.Text(FText::FromString(TEXT("修改文件字符")))
+		.OnReleased_Lambda([&]()
+		{
+			GLCSlateMethods::AddModifyCharactersWindow();
+		})
 	];
 }

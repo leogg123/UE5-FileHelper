@@ -6,28 +6,21 @@
 void SGenerateProgram::Construct(const FArguments& InArgs)
 {
 	ConstructMySlate();
+}
 
-	if(!MyVerticalBox) return;
+FText SGenerateProgram::GetDefaultParamText()
+{
+	return FText::FromString(GLCCommonMethods::GetGenerateProgramParam());
+}
 
-	MyVerticalBox->InsertSlot(MyVerticalBox->NumSlots() - 1)
-	.AutoHeight()
-	.HAlign(EHorizontalAlignment::HAlign_Left)
-	.VAlign(EVerticalAlignment::VAlign_Top)
-	.Padding(3)
-	[
-		SNew(SHorizontalBox)
+FText SGenerateProgram::GetParamToolTipText()
+{
+	return FText::FromString(TEXT("填写生成的新程序名字"));
+}
 
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		.Padding(3)
-		[
-			SAssignNew(NewProgramName,SEditableTextBox)
-			.ToolTipText(FText::FromString(TEXT("填写生成程序的名字")))
-			.Text(FText::FromString(TEXT("MyNewProgram")))
-		]
-	];
+void SGenerateProgram::OnParamTextCommitted(const FText& InText)
+{
+	GLCCommonMethods::SetGenerateProgramParam(InText.ToString());
 }
 
 FText SGenerateProgram::GetExplorePathText()
@@ -54,9 +47,9 @@ void SGenerateProgram::OnExploreButtonReleased()
 
 void SGenerateProgram::OnExecuteButtonReleased()
 {
-	if (NewProgramName)
+	if (ParamText)
 	{
-		FString NewProgram = NewProgramName->GetText().ToString();
+		FString NewProgram = ParamText->GetText().ToString();
 		GLCCommonMethods::GenerateNewProgram(NewProgram);
 	}
 	

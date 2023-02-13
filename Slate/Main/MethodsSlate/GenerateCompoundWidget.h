@@ -13,10 +13,11 @@ public:
 	void Construct(const FArguments& InArgs);
 
 protected:
-	TSharedPtr<SEditableTextBox> ParamText;
-
-	virtual FText GetExplorePathText();
-	virtual FText GetButtonText();
-	virtual void OnExploreButtonReleased();
-	virtual void OnExecuteButtonReleased();
+	virtual FText GetDefaultParamText()override;
+	virtual void OnParamTextCommitted(const FText& InText) override;
+	virtual FText GetParamToolTipText()override;
+	virtual FText GetExplorePathText()override;
+	virtual FText GetButtonText()override;
+	virtual void OnExploreButtonReleased()override;
+	virtual void OnExecuteButtonReleased()override;
 };
