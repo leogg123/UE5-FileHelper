@@ -71,5 +71,19 @@ TSharedRef<SWidget> SMainToolBar::GetMethodComboButtons()
 		{
 			GLCSlateMethods::AddGenerateNewProgramWindow();
 		})
+	]
+
+	+SVerticalBox::Slot()
+	.AutoHeight()
+	.VAlign(EVerticalAlignment::VAlign_Top)
+	.HAlign(EHorizontalAlignment::HAlign_Center)
+	.Padding(4.f)
+	[
+		SNew(SButton)
+		.Text(FText::FromString(TEXT("生成CompoundWidget文件")))
+		.OnReleased_Lambda([&]()
+		{
+			GLCSlateMethods::AddGenerateCompoundWidgetWindow();
+		})
 	];
 }

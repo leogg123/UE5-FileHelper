@@ -31,7 +31,7 @@ void SMethodsSlateBase::ConstructMySlate()
 				SNew(STextBlock)
 				.Text_Lambda([&]()->FText
 				{
-					return GetTextBlockText();
+					return GetExplorePathText();
 				})
 			]
 

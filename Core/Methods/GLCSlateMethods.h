@@ -6,4 +6,5 @@ namespace GLCSlateMethods
 {
 	void AddSettingWindow();
 	void AddGenerateNewProgramWindow();
+	void AddGenerateCompoundWidgetWindow();
 }

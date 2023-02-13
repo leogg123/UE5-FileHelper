@@ -14,6 +14,12 @@ public:
 	FString EnginePath;
 
 	UPROPERTY(Config)
-	FString LastGenerateProgramPath;
+	FString GenerateProgramPath;
+
+	UPROPERTY(Config)
+	FString GenerateCompoundWidgetParam;
+
+	UPROPERTY(Config)
+	FString GenerateCompoundWidgetPath;
 
 };

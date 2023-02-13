@@ -17,7 +17,7 @@ public:
 protected:
 	TSharedPtr<SVerticalBox> MyVerticalBox;
 
-	virtual FText GetTextBlockText() = 0;
+	virtual FText GetExplorePathText() = 0;
 	virtual FText GetButtonText();
 	virtual void OnExploreButtonReleased() = 0;
 	virtual void OnExecuteButtonReleased() = 0;

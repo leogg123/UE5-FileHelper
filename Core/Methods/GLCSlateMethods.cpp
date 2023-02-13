@@ -2,6 +2,7 @@
 #include "GLCCommonMethods.h"
 #include <DesktopPlatformModule.h>
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
+#include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateCompoundWidget.h"
 
 
 namespace GLCSlateMethods
@@ -69,7 +70,7 @@ namespace GLCSlateMethods
 	{
 		TSharedPtr<SWindow> GenerateWindow =
 			SNew(SWindow)
-			.Title(FText::FromString(TEXT("设置")))
+			.Title(FText::FromString(TEXT("生成新的程序")))
 			.ClientSize(FVector2D(600, 300))
 			[
 				SNew(SVerticalBox)
@@ -81,6 +82,28 @@ namespace GLCSlateMethods
 				.Padding(4)
 				[
 					SNew(SGenerateProgram)
+				]
+			];
+
+		FSlateApplication::Get().AddWindow(GenerateWindow.ToSharedRef());
+	}
+
+	void AddGenerateCompoundWidgetWindow()
+	{
+		TSharedPtr<SWindow> GenerateWindow =
+			SNew(SWindow)
+			.Title(FText::FromString(TEXT("生成新的程序")))
+			.ClientSize(FVector2D(600, 300))
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(EHorizontalAlignment::HAlign_Left)
+				.VAlign(EVerticalAlignment::VAlign_Top)
+				.Padding(4)
+				[
+					SNew(SGenerateCompoundWidget)
 				]
 			];
 

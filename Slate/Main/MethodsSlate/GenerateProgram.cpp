@@ -30,10 +30,10 @@ void SGenerateProgram::Construct(const FArguments& InArgs)
 	];
 }
 
-FText SGenerateProgram::GetTextBlockText()
+FText SGenerateProgram::GetExplorePathText()
 {
-	FString LastPath = GLCCommonMethods::GetLastGenerateProgramPath().IsEmpty() ? TEXT("无保存路径")
-		: GLCCommonMethods::GetLastGenerateProgramPath();
+	FString LastPath = GLCCommonMethods::GetGenerateProgramPath().IsEmpty() ? TEXT("无保存路径")
+		: GLCCommonMethods::GetGenerateProgramPath();
 	return FText::FromString(FString::Printf(TEXT("上次的生成路径 : %s"),*LastPath));
 }
 
@@ -46,7 +46,7 @@ void SGenerateProgram::OnExploreButtonReleased()
 {
 	FString SelectedPath;
 	if (FDesktopPlatformModule::Get()->OpenDirectoryDialog(nullptr, TEXT("选择生成的路径")
-		, GLCCommonMethods::GetLastGenerateProgramPath(), SelectedPath))
+		, GLCCommonMethods::GetGenerateProgramPath(), SelectedPath))
 	{
 		GLCCommonMethods::SetGenerateProgramPath(SelectedPath);
 	}

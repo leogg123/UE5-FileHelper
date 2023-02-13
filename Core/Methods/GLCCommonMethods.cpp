@@ -1,9 +1,6 @@
 #include "GLCCommonMethods.h"
 
-#include "GLCFileHelper\Core\GLCSaveObject.h"
 #include <HAL/PlatformFileManager.h>
-
-
 
 namespace GLCCommonMethods
 {
@@ -16,42 +13,6 @@ namespace GLCCommonMethods
 			return InObject;
 		}
 		return nullptr;
-	}
-
-	FString GetEnginePath()
-	{
-		if (UGLCSaveObject* InObject = GetGLCSaveObject())
-		{
-			return InObject->EnginePath;
-		}
-		return FString();
-	}
-
-	void SetEnginePath(const FString& InEnginePath)
-	{
-		if (UGLCSaveObject* InObject = GetGLCSaveObject())
-		{
-			InObject->EnginePath = InEnginePath;
-			InObject->SaveConfig();
-		}
-	}
-
-	FString GetLastGenerateProgramPath()
-	{
-		if (UGLCSaveObject* InObject = GetGLCSaveObject())
-		{
-			return InObject->LastGenerateProgramPath;
-		}
-		return FString();
-	}
-
-	void SetGenerateProgramPath(const FString& InPath)
-	{
-		if (UGLCSaveObject* InObject = GetGLCSaveObject())
-		{
-			InObject->LastGenerateProgramPath = InPath;
-			InObject->SaveConfig();
-		}
 	}
 
 	void ModifyFileCoding(const FString& InSearchPath, FFileHelper::EEncodingOptions CodingType)
@@ -158,6 +119,181 @@ namespace GLCCommonMethods
 		}		
 	}
 
+	bool GetSourceDirAndProgramNameByFileName(const FString& InFileName, FString& OutSourceDir,
+		FString& OutProgramName)
+	{
+		FString NewTargetPath = InFileName;
+		FPaths::NormalizeDirectoryName(NewTargetPath);
+
+		TArray<FString> PathStrings;
+		NewTargetPath.ParseIntoArray(PathStrings, TEXT("/"));
+
+		int32 Index = 10;
+		bool bFind = false;
+		while (Index != 0 && bFind == false)
+		{
+			FString SearchDiretory;
+			for (FString& InPath : PathStrings)
+			{
+				SearchDiretory += InPath += TEXT("/");
+			}
+			SearchDiretory.RemoveFromEnd(TEXT("/"));
+
+			TArray<FString> FileNames;
+			IFileManager::Get().FindFilesRecursive(FileNames, *SearchDiretory, TEXT("*")
+				, true, false);
+			if (FileNames.Num())
+			{
+				for (FString& TempFileName : FileNames)
+				{
+					if (TempFileName.Contains(TEXT("Build.cs")))
+					{
+						FPaths::NormalizeFilename(TempFileName);
+						OutSourceDir = FPaths::GetPath(TempFileName);
+						
+						TArray<FString> PathParseStrings;
+						OutSourceDir.ParseIntoArray(PathParseStrings,TEXT("/"));
+
+						OutProgramName = PathParseStrings.Last();
+						bFind = true;
+						break;
+					}
+				}
+			}
+
+			PathStrings.Pop();
+			--Index;
+		}
+		if(bFind) return true;
+
+		return false;
+	}
+
+	bool GetFileIncludeByClassName(const FString& InClassName, const FString& InProgramName,
+		const FString& InSourceDir, FString& OutInclude)
+	{
+		if(!IFileManager::Get().DirectoryExists(*InSourceDir) || InClassName.IsEmpty()) return false;
+		OutInclude.Empty();
+
+		TArray<FString> FileNames;
+		IFileManager::Get().FindFilesRecursive(FileNames,*InSourceDir,TEXT(".h"), true, false);
+		if (FileNames.Num())
+		{
+			for (FString& InFileName : FileNames)
+			{
+				TArray<FString> FileDatas;
+				if (FFileHelper::LoadFileToStringArray(FileDatas, *InFileName))
+				{
+					for (FString& Data : FileDatas)
+					{
+						if (Data.Contains(InClassName))
+						{
+							FPaths::NormalizeFilename(InFileName);
+							TArray<FString> FileNameArr;
+							InFileName.ParseIntoArray(FileNameArr,TEXT("/"));
+
+							bool bFind = false;
+							for (FString& InSingleName : FileNameArr)
+							{
+								if (bFind)
+								{
+									OutInclude += InSingleName += TEXT("/");
+								}
+								else
+								{
+									if (InSingleName.Contains(InProgramName))
+									{
+										OutInclude += FString::Printf(TEXT("#include \"%s/\""),*InSingleName);
+										bFind = true;
+									}
+								}
+							}
+							OutInclude.RemoveFromEnd(TEXT("/"));
+
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	void GenerateCompoundWidget(const FString& InTargetPath, const FString& InNewSlateName,
+		const FString& OptionalParent)
+	{
+		if(InNewSlateName.IsEmpty()) OpenMessageDialogByString(TEXT("SlateName 不能为空"));
+
+		if(CheckPath(InTargetPath))
+		{
+			const FString Temp_hFile = FPaths::ProjectSavedDir() / TEXT("MyTempSlate__.h");
+			const FString Temp_cppFile = FPaths::ProjectSavedDir() / TEXT("MyTempSlate__.cpp");
+
+			FGLCOutputLog OutputLog;
+			if (FPlatformFileManager::Get().GetPlatformFile().CopyFile(*InTargetPath, *Temp_hFile,
+				EPlatformFileRead::AllowWrite, EPlatformFileWrite::AllowRead))
+			{
+				OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"),*Temp_hFile,*InTargetPath));
+				if (FPlatformFileManager::Get().GetPlatformFile().CopyFile(*InTargetPath, *Temp_cppFile,
+					EPlatformFileRead::AllowWrite, EPlatformFileWrite::AllowRead))
+				{
+					OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"), *Temp_cppFile, *InTargetPath));
+					
+					auto ModifyFile = [&](bool bIscpp,TFunction<void(FString& InString)>fun = nullptr)
+					{
+						const FString TempFileName = bIscpp ? TEXT("MyTempSlate__.cpp") : 
+							TEXT("MyTempSlate__.h");
+
+						FString FileName = InTargetPath / TempFileName;
+						TArray<FString> Datas;
+						if (FFileHelper::LoadFileToStringArray(Datas, *FileName))
+						{
+							for (FString& InData : Datas)
+							{
+								fun(InData);
+								InData.ReplaceInline(*TempFileName, *InNewSlateName);
+							}
+							IFileManager::Get().Delete(*FileName, true, true);
+							FileName.ReplaceInline(*TempFileName, *InNewSlateName);
+							if (FFileHelper::SaveStringArrayToFile(Datas, *FileName, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
+							{
+								OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件修改成功"), *FileName));
+							}
+						}
+					};
+					
+
+					//找到程序的Source文件夹
+					FString SourceDir;
+					FString ProgramName;
+					FString IncludeString;
+
+					bool bFind = GetSourceDirAndProgramNameByFileName(InTargetPath, SourceDir, ProgramName);
+					bFind = GetFileIncludeByClassName(OptionalParent,ProgramName,SourceDir,IncludeString);
+
+					//处理复制的.h文件
+					ModifyFile(false,[&](FString& InData)
+					{
+						if (!OptionalParent.IsEmpty() && bFind)
+						{
+							if (InData.Contains(TEXT("Widgets/SCompoundWidget.h")))
+							{
+								InData = IncludeString;
+							}
+							else if (InData.Contains(TEXT("public SCompoundWidget")))
+							{
+								InData.ReplaceInline(TEXT("SCompoundWidget"),*OptionalParent);
+							}
+						}
+					});
+
+					//处理复制的.cpp文件
+					ModifyFile(true);
+				}
+			}
+		}
+	}
+
 	bool CheckPath(const FString& InPath)
 	{
 		if (!IFileManager::Get().DirectoryExists(*InPath))
@@ -208,7 +344,6 @@ FGLCOutputLog::FGLCOutputLog()
 			
 		];
 	FSlateApplication::Get().AddWindow(LogWindow.ToSharedRef());
-	FPlatformProcess::Sleep(0.05f);
 }
 
 void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType /*= EMessageType::DISPLAY*/)
@@ -245,5 +380,4 @@ void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType 
 			.ColorAndOpacity(Color)
 		];
 	}
-	FPlatformProcess::Sleep(0.05f);
 }

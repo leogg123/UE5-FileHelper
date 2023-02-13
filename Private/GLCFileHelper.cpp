@@ -21,12 +21,6 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, PSTR szCmdLin
 	FSlateApplication::InitHighDPI(true);
 	FSlateApplication::InitializeCoreStyle();
 
-	/*TSharedPtr<FSlateImageBrush> MyImageBrush = MakeShareable(new FSlateImageBrush(FPaths::ProjectSavedDir() / TEXT("GLCFileHelper.png"),FVector2D(30,30)));
-	FWindowStyle& InWindowStyle = const_cast<FWindowStyle&>(FCoreStyle::Get().GetWidgetStyle<FWindowStyle>("Window"));
-
-	FSlateBrush* IconBrush = const_cast<FSlateBrush*>(FAppStyle::Get().GetBrush(TEXT("AppIcon")));
-	IconBrush = MyImageBrush.Get();*/
-
 	GLCStartupMethods::InitMySlate();
 
 	while (!IsEngineExitRequested())

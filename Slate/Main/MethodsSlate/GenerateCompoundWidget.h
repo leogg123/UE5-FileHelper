@@ -3,17 +3,17 @@
 #include "GLCFileHelper\Slate\Main\MethodsSlate\Core\MethodsSlateBase.h"
 
 
-class SGenerateProgram : public SMethodsSlateBase
+class SGenerateCompoundWidget : public SMethodsSlateBase
 {
 public:
-	SLATE_BEGIN_ARGS(SGenerateProgram)
+	SLATE_BEGIN_ARGS(SGenerateCompoundWidget)
 	{}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 
 protected:
-	TSharedPtr<SEditableTextBox> NewProgramName;
+	TSharedPtr<SEditableTextBox> ParamText;
 
 	virtual FText GetExplorePathText();
 	virtual FText GetButtonText();
