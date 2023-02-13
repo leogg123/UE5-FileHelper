@@ -24,12 +24,13 @@ void SGenerateCompoundWidget::Construct(const FArguments& InArgs)
 		.Padding(3)
 		[
 			SAssignNew(ParamText,SEditableTextBox)
-			.ToolTipText(FText::FromString(TEXT("填写新Slate的名称(不用加S)，可选(填写父类的完整名称)，用|分割")))
+			.ToolTipText(FText::FromString(TEXT("填写新Slate的名称(不用加S)，可选(填写父类的完整名称)，用&&分割")))
 			.Text(FText::FromString(GLCCommonMethods::GetGenerateCompoundWidgetParam()))
 			.OnTextCommitted_Lambda(
 			[&](const FText& InText, ETextCommit::Type InType)
 			{
-				GLCCommonMethods::SetGenerateCompoundWidgetParam(InText.ToString());
+				if (!ParamText) return;
+				GLCCommonMethods::SetGenerateCompoundWidgetParam(ParamText->GetText().ToString());
 			})
 		]
 	];
@@ -59,10 +60,12 @@ void SGenerateCompoundWidget::OnExploreButtonReleased()
 
 void SGenerateCompoundWidget::OnExecuteButtonReleased()
 {
-	FString Param = GLCCommonMethods::GetGenerateCompoundWidgetPath();
+	if(!ParamText) return;
+
+	FString Param = ParamText->GetText().ToString();
 	TArray<FString> ParamStrings;
 
-	if (Param.ParseIntoArray(ParamStrings, TEXT("|")))
+	if (Param.ParseIntoArray(ParamStrings, TEXT("&&")))
 	{
 		FString NewSlateName;
 		FString OptionalParent;

@@ -13,7 +13,7 @@ namespace GLCSlateMethods
 		TSharedPtr<SWindow> SettingWindow = 
 		SNew(SWindow)
 		.Title(FText::FromString(TEXT("设置")))
-		.ClientSize(FVector2D(600, 300))
+		.ClientSize(FVector2D(700, 800))
 		[
 			SNew(SVerticalBox)
 
@@ -71,7 +71,7 @@ namespace GLCSlateMethods
 		TSharedPtr<SWindow> GenerateWindow =
 			SNew(SWindow)
 			.Title(FText::FromString(TEXT("生成新的程序")))
-			.ClientSize(FVector2D(600, 300))
+			.ClientSize(FVector2D(700, 800))
 			[
 				SNew(SVerticalBox)
 
@@ -93,7 +93,7 @@ namespace GLCSlateMethods
 		TSharedPtr<SWindow> GenerateWindow =
 			SNew(SWindow)
 			.Title(FText::FromString(TEXT("生成新的程序")))
-			.ClientSize(FVector2D(600, 300))
+			.ClientSize(FVector2D(700, 800))
 			[
 				SNew(SVerticalBox)
 

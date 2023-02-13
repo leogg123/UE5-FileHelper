@@ -176,11 +176,13 @@ namespace GLCCommonMethods
 		OutInclude.Empty();
 
 		TArray<FString> FileNames;
-		IFileManager::Get().FindFilesRecursive(FileNames,*InSourceDir,TEXT(".h"), true, false);
+		IFileManager::Get().FindFilesRecursive(FileNames,*InSourceDir,TEXT("*"), true, false);
 		if (FileNames.Num())
 		{
 			for (FString& InFileName : FileNames)
 			{
+				if(!InFileName.Contains(TEXT(".h"))) continue;
+
 				TArray<FString> FileDatas;
 				if (FFileHelper::LoadFileToStringArray(FileDatas, *InFileName))
 				{
@@ -197,18 +199,19 @@ namespace GLCCommonMethods
 							{
 								if (bFind)
 								{
-									OutInclude += InSingleName += TEXT("/");
+									OutInclude += InSingleName + TEXT("/");
 								}
 								else
 								{
 									if (InSingleName.Contains(InProgramName))
 									{
-										OutInclude += FString::Printf(TEXT("#include \"%s/\""),*InSingleName);
+										OutInclude += FString::Printf(TEXT("#include \"%s/"),*InSingleName);
 										bFind = true;
 									}
 								}
 							}
 							OutInclude.RemoveFromEnd(TEXT("/"));
+							OutInclude += TEXT("\"");
 
 							return true;
 						}
@@ -229,32 +232,32 @@ namespace GLCCommonMethods
 			const FString Temp_hFile = FPaths::ProjectSavedDir() / TEXT("MyTempSlate__.h");
 			const FString Temp_cppFile = FPaths::ProjectSavedDir() / TEXT("MyTempSlate__.cpp");
 
+			const FString Target_hFile = InTargetPath / InNewSlateName + TEXT(".h");
+			const FString Target_cppFile = InTargetPath / InNewSlateName + TEXT(".cpp");
+
 			FGLCOutputLog OutputLog;
-			if (FPlatformFileManager::Get().GetPlatformFile().CopyFile(*InTargetPath, *Temp_hFile,
-				EPlatformFileRead::AllowWrite, EPlatformFileWrite::AllowRead))
+			if (IFileManager::Get().Copy(*Target_hFile, *Temp_hFile) == ECopyResult::COPY_OK)
 			{
 				OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"),*Temp_hFile,*InTargetPath));
-				if (FPlatformFileManager::Get().GetPlatformFile().CopyFile(*InTargetPath, *Temp_cppFile,
-					EPlatformFileRead::AllowWrite, EPlatformFileWrite::AllowRead))
+				if (IFileManager::Get().Copy(*Target_cppFile, *Temp_cppFile) == ECopyResult::COPY_OK)
 				{
 					OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"), *Temp_cppFile, *InTargetPath));
 					
 					auto ModifyFile = [&](bool bIscpp,TFunction<void(FString& InString)>fun = nullptr)
 					{
-						const FString TempFileName = bIscpp ? TEXT("MyTempSlate__.cpp") : 
-							TEXT("MyTempSlate__.h");
-
-						FString FileName = InTargetPath / TempFileName;
+						FString FileName = bIscpp ? Target_cppFile : Target_hFile;
 						TArray<FString> Datas;
 						if (FFileHelper::LoadFileToStringArray(Datas, *FileName))
 						{
 							for (FString& InData : Datas)
 							{
-								fun(InData);
-								InData.ReplaceInline(*TempFileName, *InNewSlateName);
+								if (fun)
+								{
+									fun(InData);
+								}
+								InData.ReplaceInline(TEXT("MyTempSlate__"), *InNewSlateName);
 							}
 							IFileManager::Get().Delete(*FileName, true, true);
-							FileName.ReplaceInline(*TempFileName, *InNewSlateName);
 							if (FFileHelper::SaveStringArrayToFile(Datas, *FileName, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 							{
 								OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件修改成功"), *FileName));
@@ -268,13 +271,22 @@ namespace GLCCommonMethods
 					FString ProgramName;
 					FString IncludeString;
 
-					bool bFind = GetSourceDirAndProgramNameByFileName(InTargetPath, SourceDir, ProgramName);
-					bFind = GetFileIncludeByClassName(OptionalParent,ProgramName,SourceDir,IncludeString);
+					bool bFind = false;
+					if (!OptionalParent.IsEmpty())
+					{
+						bFind = GetSourceDirAndProgramNameByFileName(InTargetPath, SourceDir, ProgramName);
+						bFind = GetFileIncludeByClassName(OptionalParent, ProgramName, SourceDir, IncludeString);
+						
+						if (!bFind)
+						{
+							OpenMessageDialogByString(TEXT("确保项目文件夹里存在build.cs文件"));
+						}
+					}
 
 					//处理复制的.h文件
 					ModifyFile(false,[&](FString& InData)
 					{
-						if (!OptionalParent.IsEmpty() && bFind)
+						if (bFind)
 						{
 							if (InData.Contains(TEXT("Widgets/SCompoundWidget.h")))
 							{
@@ -289,6 +301,8 @@ namespace GLCCommonMethods
 
 					//处理复制的.cpp文件
 					ModifyFile(true);
+					OutputLog.AddNewMessage(TEXT("完成"));
+					FPlatformProcess::ExploreFolder(*InTargetPath);
 				}
 			}
 		}
@@ -371,8 +385,8 @@ void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType 
 	if (ScrollBox)
 	{
 		ScrollBox->AddSlot()
-		.HAlign(EHorizontalAlignment::HAlign_Fill)
-		.VAlign(EVerticalAlignment::VAlign_Fill)
+		.HAlign(EHorizontalAlignment::HAlign_Left)
+		.VAlign(EVerticalAlignment::VAlign_Top)
 		.Padding(4.f)
 		[
 			SNew(STextBlock)
