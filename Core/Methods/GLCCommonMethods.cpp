@@ -2,6 +2,8 @@
 
 #include <HAL/PlatformFileManager.h>
 
+#include "WindowsAPI.h"
+
 namespace GLCCommonMethods
 {
 
@@ -17,7 +19,7 @@ namespace GLCCommonMethods
 
 	void ModifyFileCoding(const FString& InSearchPath, FFileHelper::EEncodingOptions CodingType)
 	{
-		if(!CheckPath(InSearchPath)) return;
+		if(!CheckEnginePathAndPath(InSearchPath)) return;
 		FGLCOutputLog OutputLog;
 		
 		TArray<FString> FoundFiles;
@@ -57,15 +59,15 @@ namespace GLCCommonMethods
 	void GenerateNewProgram(const FString& InNewProgramName, bool bIsConsoleApp /*= true*/, 
 		const FString& InTargetPath /*= GetLastGenerateProgramPath()*/)
 	{
-		if (CheckPath(InTargetPath))
+		if (CheckEnginePathAndPath(InTargetPath))
 		{
 			const FString EngineProgramSource = GetEnginePath() / TEXT("Engine") / TEXT("Source")
 				/ TEXT("Programs");
 			const FString BlankProgramPath = GetEnginePath() / TEXT("Engine") / TEXT("Source")
 				/ TEXT("Programs") / TEXT("BlankProgram");
-			const FString TargetDiretory = InTargetPath / InNewProgramName;
+			const FString TargetDirectory = InTargetPath / InNewProgramName;
 
-			if (IFileManager::Get().DirectoryExists(*TargetDiretory))
+			if (IFileManager::Get().DirectoryExists(*TargetDirectory))
 			{
 				OpenMessageDialogByString(FString::Printf(TEXT("[%s] 程序已经存在 !"), *InNewProgramName));
 				FPlatformProcess::ExploreFolder(*InTargetPath);
@@ -77,13 +79,13 @@ namespace GLCCommonMethods
 			{
 				if (IFileManager::Get().DirectoryExists(*BlankProgramPath))
 				{
-					if (FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*TargetDiretory,
+					if (FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*TargetDirectory,
 						*BlankProgramPath, true))
 					{
 						OutputLog.AddNewMessage(TEXT("文件夹复制成功"));
 
 						TArray<FString> FileNameStrings;
-						IFileManager::Get().FindFilesRecursive(FileNameStrings, *TargetDiretory, TEXT("*"),
+						IFileManager::Get().FindFilesRecursive(FileNameStrings, *TargetDirectory, TEXT("*"),
 							true, false);
 						OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件数量 = %d"), FileNameStrings.Num()));
 						if (FileNameStrings.Num())
@@ -93,12 +95,12 @@ namespace GLCCommonMethods
 								if(InFileName.Contains(TEXT("ico")))continue;
 								if (InFileName.Contains(TEXT("png")))continue;
 
-								TArray<FString> FileDatas;
-								if (FFileHelper::LoadFileToStringArray(FileDatas, *InFileName))
+								TArray<FString> FileData;
+								if (FFileHelper::LoadFileToStringArray(FileData, *InFileName))
 								{
-									for (FString& InDatas : FileDatas)
+									for (FString& InData : FileData)
 									{
-										InDatas.ReplaceInline(TEXT("BlankProgram"),*InNewProgramName);
+										InData.ReplaceInline(TEXT("BlankProgram"),*InNewProgramName);
 									}
 									if (!IFileManager::Get().Delete(*InFileName, true, true))
 									{
@@ -106,7 +108,7 @@ namespace GLCCommonMethods
 											, FGLCOutputLog::ERROR);
 									}
 									InFileName.ReplaceInline(TEXT("BlankProgram"),*InNewProgramName);
-									if (FFileHelper::SaveStringArrayToFile(FileDatas, *InFileName, 
+									if (FFileHelper::SaveStringArrayToFile(FileData, *InFileName, 
 										FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 									{
 										OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功！"), *InFileName)
@@ -150,15 +152,15 @@ namespace GLCCommonMethods
 		bool bFind = false;
 		while (Index != 0 && bFind == false)
 		{
-			FString SearchDiretory;
+			FString SearchDirectory;
 			for (FString& InPath : PathStrings)
 			{
-				SearchDiretory += InPath += TEXT("/");
+				SearchDirectory += InPath += TEXT("/");
 			}
-			SearchDiretory.RemoveFromEnd(TEXT("/"));
+			SearchDirectory.RemoveFromEnd(TEXT("/"));
 
 			TArray<FString> FileNames;
-			IFileManager::Get().FindFilesRecursive(FileNames, *SearchDiretory, TEXT("*")
+			IFileManager::Get().FindFilesRecursive(FileNames, *SearchDirectory, TEXT("*")
 				, true, false);
 			if (FileNames.Num())
 			{
@@ -201,10 +203,10 @@ namespace GLCCommonMethods
 			{
 				if(!InFileName.Contains(TEXT(".h"))) continue;
 
-				TArray<FString> FileDatas;
-				if (FFileHelper::LoadFileToStringArray(FileDatas, *InFileName))
+				TArray<FString> FileData;
+				if (FFileHelper::LoadFileToStringArray(FileData, *InFileName))
 				{
-					for (FString& Data : FileDatas)
+					for (FString& Data : FileData)
 					{
 						if (Data.Contains(InClassName))
 						{
@@ -249,7 +251,7 @@ namespace GLCCommonMethods
 	{
 		if(InNewSlateName.IsEmpty()) OpenMessageDialogByString(TEXT("SlateName 不能为空"));
 
-		if(CheckPath(InTargetPath))
+		if(CheckEnginePathAndPath(InTargetPath))
 		{
 			const FString Temp_hFile = FPaths::ProjectSavedDir() / TEXT("MyTempSlate__.h");
 			const FString Temp_cppFile = FPaths::ProjectSavedDir() / TEXT("MyTempSlate__.cpp");
@@ -268,10 +270,10 @@ namespace GLCCommonMethods
 					auto ModifyFile = [&](bool bIscpp,TFunction<void(FString& InString)>fun = nullptr)
 					{
 						FString FileName = bIscpp ? Target_cppFile : Target_hFile;
-						TArray<FString> Datas;
-						if (FFileHelper::LoadFileToStringArray(Datas, *FileName))
+						TArray<FString> Data;
+						if (FFileHelper::LoadFileToStringArray(Data, *FileName))
 						{
-							for (FString& InData : Datas)
+							for (FString& InData : Data)
 							{
 								if (fun)
 								{
@@ -280,7 +282,7 @@ namespace GLCCommonMethods
 								InData.ReplaceInline(TEXT("MyTempSlate__"), *InNewSlateName);
 							}
 							IFileManager::Get().Delete(*FileName, true, true);
-							if (FFileHelper::SaveStringArrayToFile(Datas, *FileName, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
+							if (FFileHelper::SaveStringArrayToFile(Data, *FileName, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 							{
 								OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件修改成功"), *FileName));
 							}
@@ -296,7 +298,7 @@ namespace GLCCommonMethods
 					bool bFind = false;
 					if (!OptionalParent.IsEmpty())
 					{
-						bFind = GetSourceDirAndProgramNameByFileName(InTargetPath, SourceDir, ProgramName);
+						GetSourceDirAndProgramNameByFileName(InTargetPath, SourceDir, ProgramName);
 						bFind = GetFileIncludeByClassName(OptionalParent, ProgramName, SourceDir, IncludeString);
 						
 						if (!bFind)
@@ -333,7 +335,7 @@ namespace GLCCommonMethods
 	void ModifyCharactersIteration(const FString& InPath, const FString& InSearch, 
 		const FString& InReplace,const FString& InOptionalCondition)
 	{
-		if(CheckPath(InPath))
+		if(CheckEnginePathAndPath(InPath))
 		{
 			FGLCOutputLog OutputLog;
 			int32 Count = 0;
@@ -396,16 +398,169 @@ namespace GLCCommonMethods
 		}
 	}
 
+	void PackageProgram(const FString& InProgramName, const FString& TargetPath)
+	{
+		if(CheckEnginePathAndPath(TargetPath) && !InProgramName.IsEmpty())
+		{
+			const FString EngineWin64BinaryDir = GetEnginePath() / TEXT("Engine") / TEXT("Binaries")
+				/ TEXT("Win64");
+			const FString EngineContentOfSlate = GetEnginePath() / TEXT("Engine")
+				/ TEXT("Content") / TEXT("Slate");
+			const FString ProgramSave = GetEnginePath() / TEXT("Engine") / TEXT("Programs")
+				/ InProgramName;
+			const FString Shader = GetEnginePath() / TEXT("Engine") / TEXT("Shaders");
+
+			
+			const FString NewTargetPath = TargetPath / InProgramName;
+			const FString TargetWin64BinaryDir = NewTargetPath / TEXT("Engine") / TEXT("Binaries")
+				/ TEXT("Win64");
+			const FString TargetContentOfSlate = NewTargetPath / TEXT("Engine")
+				/ TEXT("Content") / TEXT("Slate");
+			const FString TargetSave = NewTargetPath / TEXT("Engine") / TEXT("Programs")
+				/ InProgramName;
+			const FString TargetShader = NewTargetPath / TEXT("Engine") / TEXT("Shaders");
+			
+			if(CheckPath(*EngineWin64BinaryDir) && CheckPath(EngineContentOfSlate)
+				&& CheckPath(ProgramSave))
+			{
+				FGLCOutputLog OutputLog;
+
+				auto CopyFiles = [&](const FString& FromDir,const FString& ToDir,bool bCopyAll)
+				{
+					if(!CreateDirectory(ToDir)) return;
+
+					if(bCopyAll)
+					{
+						if(FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*ToDir,
+							*FromDir,true))
+						{
+							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件夹打包成功"),*FromDir));
+						}
+						else
+						{
+							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件夹存在打包失败的文件"),*FromDir),
+								FGLCOutputLog::WARNING);
+						}
+						return;
+					}
+					
+					TArray<FString> FileNames;
+					IFileManager::Get().FindFilesRecursive(FileNames,*FromDir,
+						TEXT("*"),true,false);
+					
+					for(FString& InFileName : FileNames)
+					{
+						if(!InFileName.Contains(InProgramName)) continue;
+
+						//当前在引擎搜索到的文件名字
+						FPaths::NormalizeFilename(InFileName);
+						TArray<FString> PathStrs;
+						InFileName.ParseIntoArray(PathStrs,TEXT("/"));
+						
+						FString NewDir = ToDir;
+						FPaths::NormalizeFilename(NewDir);
+
+						//目标的文件名字
+						TArray<FString> TargetFileNames;
+						NewDir.ParseIntoArray(TargetFileNames,TEXT("/"));
+
+						//保持相对的路径是一致的
+						bool bFind = false;
+						for(FString& InStr : PathStrs)
+						{
+							if(bFind)
+							{
+								NewDir += InStr + TEXT("/");
+							}
+							else
+							{
+								if(InStr.Equals(TargetFileNames[TargetFileNames.Num() - 1]))
+								{
+									bFind = true;
+									NewDir += TEXT("/");
+								}
+							}
+						}
+						NewDir.RemoveFromEnd(TEXT("/"));
+						
+						const FString NewFileName = FPaths::GetPath(NewDir) / FPaths::GetCleanFilename(InFileName);
+						if(IFileManager::Get().Copy(*NewFileName,*InFileName,true,true) == ECopyResult::COPY_OK)
+						{
+							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件打包成功"),*InFileName));
+						}
+						else
+						{
+							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件打包失败"),*InFileName),
+								FGLCOutputLog::WARNING);
+						}
+					}
+				};
+
+				//打包Binary
+				CopyFiles(EngineWin64BinaryDir,TargetWin64BinaryDir,false);
+
+				//打包Content的Slate文件夹
+				CopyFiles(EngineContentOfSlate,TargetContentOfSlate,true);
+
+				//打包程序的保存目录
+				CopyFiles(ProgramSave,TargetSave,true);
+
+				//打包Shader目录
+				CopyFiles(Shader,TargetShader,true);
+
+				TArray<FString> FileNames;
+				IFileManager::Get().FindFilesRecursive(FileNames,*TargetWin64BinaryDir,
+					TEXT("*"),true,false);
+				for(FString& InFileName : FileNames)
+				{
+					if(InFileName.Contains(TEXT("exe")))
+					{
+						const FString ShortcutFileName = NewTargetPath / InProgramName + TEXT(".lnk");
+						if(GLCWindowAPI::CreateProgramShortcut(InFileName,
+						ShortcutFileName))
+						{
+							OutputLog.AddNewMessage(TEXT("快捷方式创建成功"));
+						}
+						else
+						{
+							OutputLog.AddNewMessage(TEXT("快捷方式创建失败"),FGLCOutputLog::WARNING);
+						}
+						break;
+					}
+				}
+				
+				OutputLog.AddNewMessage(TEXT("完成！"));
+				FPlatformProcess::ExploreFolder(*NewTargetPath);
+			}
+		}
+	}
+
 	bool CheckPath(const FString& InPath)
 	{
 		if (!IFileManager::Get().DirectoryExists(*InPath))
 		{
-			OpenMessageDialogByString(TEXT("请现在设置里设置引擎的目录"));
+			OpenMessageDialogByString(FString::Printf(TEXT("[%s] 路径不存在"),*InPath));
 			return false;
 		}
+		return true;
+	}
+
+	bool CreateDirectory(const FString& InPath)
+	{
+		bool Ret = FPlatformFileManager::Get().GetPlatformFile().CreateDirectoryTree(*InPath);
+		if(!Ret)
+		{
+			OpenMessageDialogByString(FString::Printf(TEXT("[%s] 文件夹创建失败"),*InPath));
+		}
+		return Ret;
+	}
+
+	bool CheckEnginePathAndPath(const FString& InPath)
+	{
+		if (!CheckPath(InPath)) return false;
 		if (!IFileManager::Get().DirectoryExists(*GetEnginePath()))
 		{
-			OpenMessageDialogByString(TEXT("目标文件夹不存在"));
+			OpenMessageDialogByString(TEXT("请在设置里设置引擎的目录"));
 			return false;
 		}
 		return true;
@@ -474,7 +629,7 @@ void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType 
 			SNew(SHorizontalBox)
 
 			+SHorizontalBox::Slot()
-			.AutoWidth()
+			.FillWidth(0.9f)
 			.Padding(4.f)
 			[
 				SNew(STextBlock)

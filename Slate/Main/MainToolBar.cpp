@@ -27,14 +27,6 @@ TSharedPtr<SWidget> SMainToolBar::GetToolBar()
 		GLCSlateMethods::AddSettingWindow();
 	}));
 	
-	FString MethodWindowName = TEXT("方法窗口");
-	TSharedPtr<FUICommandInfo> MethodsWindow = MakeShareable(new FUICommandInfo(*MethodWindowName));
-	CommandList->MapAction(MethodsWindow, FExecuteAction::CreateLambda(
-	[&]()
-	{
-		
-	}));
-
 	FToolBarBuilder Builder(CommandList, FMultiBoxCustomization::None);
 	Builder.BeginSection(TEXT("MySection"));
 	{
@@ -55,63 +47,31 @@ TSharedPtr<SWidget> SMainToolBar::GetToolBar()
 	return Builder.MakeWidget();
 }
 
+#define ADD_MY_SLOT(ButtonStr,FunctionName) \
+	ToolBarVerticalBox->AddSlot() \
+	.AutoHeight() \
+	.VAlign(EVerticalAlignment::VAlign_Top) \
+	.HAlign(EHorizontalAlignment::HAlign_Center) \
+	.Padding(4.f) \
+	[ \
+		SNew(SButton) \
+		.Text(FText::FromString(ButtonStr)) \
+		.OnReleased_Lambda([&]() \
+		{ \
+			GLCSlateMethods::FunctionName(); \
+		}) \
+	]
+	
+
 TSharedRef<SWidget> SMainToolBar::GetMethodComboButtons()
 {
-	return SNew(SVerticalBox)
+	SAssignNew(ToolBarVerticalBox,SVerticalBox);
 
-	+SVerticalBox::Slot()
-	.AutoHeight()
-	.VAlign(EVerticalAlignment::VAlign_Top)
-	.HAlign(EHorizontalAlignment::HAlign_Center)
-	.Padding(4.f)
-	[
-		SNew(SButton)
-		.Text(FText::FromString(TEXT("生成新的程序")))
-		.OnReleased_Lambda([&]()
-		{
-			GLCSlateMethods::AddGenerateNewProgramWindow();
-		})
-	]
-
-	+SVerticalBox::Slot()
-	.AutoHeight()
-	.VAlign(EVerticalAlignment::VAlign_Top)
-	.HAlign(EHorizontalAlignment::HAlign_Center)
-	.Padding(4.f)
-	[
-		SNew(SButton)
-		.Text(FText::FromString(TEXT("生成CompoundWidget文件")))
-		.OnReleased_Lambda([&]()
-		{
-			GLCSlateMethods::AddGenerateCompoundWidgetWindow();
-		})
-	]
-
-	+SVerticalBox::Slot()
-	.AutoHeight()
-	.VAlign(EVerticalAlignment::VAlign_Top)
-	.HAlign(EHorizontalAlignment::HAlign_Center)
-	.Padding(4.f)
-	[
-		SNew(SButton)
-		.Text(FText::FromString(TEXT("修改文件字符")))
-		.OnReleased_Lambda([&]()
-		{
-			GLCSlateMethods::AddModifyCharactersWindow();
-		})
-	]
-
-	+SVerticalBox::Slot()
-	.AutoHeight()
-	.VAlign(EVerticalAlignment::VAlign_Top)
-	.HAlign(EHorizontalAlignment::HAlign_Center)
-	.Padding(4.f)
-	[
-		SNew(SButton)
-		.Text(FText::FromString(TEXT("修改文件编码")))
-		.OnReleased_Lambda([&]()
-		{
-			GLCSlateMethods::AddModifyFileCodingWindow();
-		})
-	];
+	ADD_MY_SLOT(TEXT("生成新的程序"),AddGenerateNewProgramWindow);
+	ADD_MY_SLOT(TEXT("生成CompoundWidget文件"),AddGenerateCompoundWidgetWindow);
+	ADD_MY_SLOT(TEXT("修改文件字符"),AddModifyCharactersWindow);
+	ADD_MY_SLOT(TEXT("修改文件编码"),AddModifyFileCodingWindow);
+	ADD_MY_SLOT(TEXT("打包独立程序"),AddPackageProgramWindow);
+	
+	return ToolBarVerticalBox.ToSharedRef();
 }

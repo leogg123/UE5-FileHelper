@@ -37,12 +37,7 @@ FText SGenerateProgram::GetButtonText()
 
 void SGenerateProgram::OnExploreButtonReleased()
 {
-	FString SelectedPath;
-	if (FDesktopPlatformModule::Get()->OpenDirectoryDialog(nullptr, TEXT("选择生成的路径")
-		, GLCCommonMethods::GetGenerateProgramPath(), SelectedPath))
-	{
-		GLCCommonMethods::SetGenerateProgramPath(SelectedPath);
-	}
+	REGISTER_EXPLORE_BUTTON_RELEASE(GenerateProgram,TEXT("选择生成的路径"));
 }
 
 void SGenerateProgram::OnExecuteButtonReleased()

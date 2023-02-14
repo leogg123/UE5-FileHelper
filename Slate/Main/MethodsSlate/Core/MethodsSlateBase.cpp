@@ -111,6 +111,7 @@ FText SMethodsSlateBase::GetDefaultParamText()
 
 void SMethodsSlateBase::OnParamTextCommitted(const FText& InText)
 {
+	
 }
 
 FText SMethodsSlateBase::GetParamToolTipText()

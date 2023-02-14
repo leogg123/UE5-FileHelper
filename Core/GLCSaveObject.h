@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "Type/GLCCoreType.h"
 
 #include "GLCSaveObject.generated.h"
 
@@ -15,24 +16,22 @@ public:
 
 	//生成新程序
 	UPROPERTY(Config)
-	FString GenerateProgramPath;
-	UPROPERTY(Config)
-	FString GenerateProgramParam;
+	FGLCSaveInfo GenerateProgram;
 
 	//生成slate控件
 	UPROPERTY(Config)
-	FString GenerateCompoundWidgetParam;
-	UPROPERTY(Config)
-	FString GenerateCompoundWidgetPath;
+	FGLCSaveInfo GenerateCompoundWidget;
 
 	//修改字符
 	UPROPERTY(Config)
-	FString ModifyCharactersParam;
-	UPROPERTY(Config)
-	FString ModifyCharactersPath;
+	FGLCSaveInfo ModifyCharacters;
 
 	//修改文件编码
 	UPROPERTY(Config)
-	FString ModifyFileCodingPath;
+	FGLCSaveInfo ModifyFileCoding;
+
+	//打包独立程序
+	UPROPERTY(Config)
+	FGLCSaveInfo PackageProgram;
 	
 };

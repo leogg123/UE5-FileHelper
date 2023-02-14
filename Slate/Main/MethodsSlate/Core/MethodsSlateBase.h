@@ -2,6 +2,14 @@
 #include "CoreMinimal.h"
 #include "GLCFileHelper\Slate\Core\SlateBase.h"
 
+#define REGISTER_EXPLORE_BUTTON_RELEASE(SaveInfo,Tip)\
+	FString SelectedPath;\
+	if (FDesktopPlatformModule::Get()->OpenDirectoryDialog(nullptr,Tip\
+		,GLCCommonMethods::Get##SaveInfo##Path(), SelectedPath))\
+	{\
+		GLCCommonMethods::Set##SaveInfo##Path(SelectedPath);\
+	}
+
 
 class SMethodsSlateBase : public SSlateBase
 {

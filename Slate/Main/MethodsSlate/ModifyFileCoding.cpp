@@ -11,7 +11,12 @@ void SModifyFileCoding::Construct(const FArguments& InArgs)
 	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUnicode"))));
 	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8"))));
 	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8WithoutBOM"))));
-	
+
+	ItemToInit = MakeShareable(new FName(GLCCommonMethods::GetModifyFileCodingParam()));
+	if(ItemToInit->IsNone())
+	{
+		ItemToInit = MakeShareable(new FName(TEXT("ForceUTF8WithoutBOM")));
+	}
 	if(MyVerticalBox)
 	{
 		MyVerticalBox->InsertSlot(MyVerticalBox->NumSlots() - 1)
@@ -40,18 +45,22 @@ void SModifyFileCoding::Construct(const FArguments& InArgs)
 			[
 				SAssignNew(ComboBoxPtr,SComboBox<FComboItemType>)
 				.OptionsSource(&ItemsArr)
-				.InitiallySelectedItem(ItemsArr[3])
+				.InitiallySelectedItem(ItemToInit)
+				.OnSelectionChanged_Lambda([&](const FComboItemType& InItem ,ESelectInfo::Type Info)
+				{
+					GLCCommonMethods::SetModifyFileCodingParam(InItem->ToString());
+				})
 				.OnGenerateWidget_Lambda([&](const FComboItemType& InItem)->TSharedRef<SWidget>
 				{
 					return
 					SNew(STextBlock)
 					.Text(FText::FromName(*InItem));
 				})
-				[
-					SNew(STextBlock)
-					.Text_Lambda([&]()->FText
-						{return FText::FromName(*ComboBoxPtr->GetSelectedItem());})
-				]
+					[
+						SNew(STextBlock)
+						.Text_Lambda([&]()->FText
+							{return FText::FromName(*ComboBoxPtr->GetSelectedItem());})
+					]
 			]
 		];
 	}
@@ -69,12 +78,7 @@ FText SModifyFileCoding::GetButtonText()
 
 void SModifyFileCoding::OnExploreButtonReleased()
 {
-	FString SelectedPath;
-	if (FDesktopPlatformModule::Get()->OpenDirectoryDialog(nullptr, TEXT("选择搜索的文件夹")
-		, GLCCommonMethods::GetModifyFileCodingPath(), SelectedPath))
-	{
-		GLCCommonMethods::SetModifyFileCodingPath(SelectedPath);
-	}
+	REGISTER_EXPLORE_BUTTON_RELEASE(ModifyFileCoding,TEXT("选择要搜索的文件夹"));
 }
 
 void SModifyFileCoding::OnExecuteButtonReleased()

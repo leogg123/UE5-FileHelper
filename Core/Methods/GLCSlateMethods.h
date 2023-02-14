@@ -16,4 +16,6 @@ namespace GLCSlateMethods
 	void AddModifyCharactersWindow();
 
 	void AddModifyFileCodingWindow();
+
+	void AddPackageProgramWindow();
 }

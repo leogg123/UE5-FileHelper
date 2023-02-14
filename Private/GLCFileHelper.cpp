@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, PSTR szCmdLin
 		BeginExitIfRequested();
 		FSlateApplication::Get().Tick();
 		FSlateApplication::Get().PumpMessages();
-		FPlatformProcess::Sleep(0.01f);
+		//FPlatformProcess::Sleep(0.01f);
 	}
 
 	FSlateApplication::Shutdown();

@@ -12,6 +12,7 @@ public:
 
 	void Construct(const FArguments& InArgs);
 
-	static TSharedPtr<SWidget> GetToolBar();
-	static TSharedRef<SWidget> GetMethodComboButtons();
+	TSharedPtr<SVerticalBox> ToolBarVerticalBox;
+	TSharedPtr<SWidget> GetToolBar();
+	TSharedRef<SWidget> GetMethodComboButtons();
 };

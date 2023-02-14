@@ -1,6 +1,8 @@
 #include "GLCSlateMethods.h"
 #include "GLCCommonMethods.h"
 #include <DesktopPlatformModule.h>
+
+#include "GLCFileHelper/Slate/Main/MethodsSlate/PackageProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateCompoundWidget.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\ModifyCharacters.h"
@@ -110,5 +112,10 @@ namespace GLCSlateMethods
 	void AddModifyFileCodingWindow()
 	{
 		AddCommonWindow(TEXT("修改文件编码"),SNew(SModifyFileCoding));
+	}
+
+	void AddPackageProgramWindow()
+	{
+		AddCommonWindow(TEXT("打包独立程序"),SNew(SPackageProgram));
 	}
 }

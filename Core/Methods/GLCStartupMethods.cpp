@@ -10,7 +10,7 @@ namespace GLCStartupMethods
 		TSharedPtr<SWindow> MainWindow =
 		SNew(SWindow)
 		.Title(FText::FromString(TEXT("GLCFileHelper")))
-		.ClientSize(FVector2D(900, 600))
+		.ClientSize(FVector2D(1100, 600))
 		[
 			SNew(SMainSlate)
 		];

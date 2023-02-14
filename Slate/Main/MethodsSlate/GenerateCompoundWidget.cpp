@@ -37,12 +37,7 @@ FText SGenerateCompoundWidget::GetButtonText()
 
 void SGenerateCompoundWidget::OnExploreButtonReleased()
 {
-	FString SelectedPath;
-	if (FDesktopPlatformModule::Get()->OpenDirectoryDialog(nullptr, TEXT("选择生成的路径")
-		, GLCCommonMethods::GetGenerateCompoundWidgetPath(), SelectedPath))
-	{
-		GLCCommonMethods::SetGenerateCompoundWidgetPath(SelectedPath);
-	}
+	REGISTER_EXPLORE_BUTTON_RELEASE(GenerateCompoundWidget,TEXT("选择生成的路径"));
 }
 
 void SGenerateCompoundWidget::OnExecuteButtonReleased()

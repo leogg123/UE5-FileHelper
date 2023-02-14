@@ -2,34 +2,24 @@
 #include "CoreMinimal.h"
 #include "GLCFileHelper/Slate/Main/MethodsSlate/Core/MethodsSlateBase.h"
 
-//ForceAnsi,
-//ForceUnicode,
-//ForceUTF8,
-//ForceUTF8WithoutBOM
-
-class SModifyFileCoding : public SMethodsSlateBase
+class SPackageProgram : public SMethodsSlateBase
 {
 public:
-	typedef TSharedPtr<FName> FComboItemType;
-	
-	SLATE_BEGIN_ARGS(SModifyFileCoding )
+	SLATE_BEGIN_ARGS(SPackageProgram )
 	{}
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 
 protected:
-	TArray<FComboItemType> ItemsArr;
-	FComboItemType ItemToInit;
-	TSharedPtr<SComboBox<FComboItemType>> ComboBoxPtr;
+	virtual FText GetDefaultParamText()override;
+	virtual void OnParamTextCommitted(const FText& InText) override;
+	virtual FText GetParamToolTipText()override;
 	
-	//浏览文件
 	virtual FText GetExplorePathText()override;
 	virtual FText GetButtonText()override;
 	virtual void OnExploreButtonReleased()override;
-	//
-
-	//执行按钮
+	
 	virtual void OnExecuteButtonReleased()override;
 
 };

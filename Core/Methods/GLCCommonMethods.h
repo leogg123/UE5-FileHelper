@@ -26,16 +26,19 @@ namespace GLCCommonMethods
 {
 	UGLCSaveObject* GetGLCSaveObject();
 
-	REGISTER_SINGLE_SAVE_OBJECT(GenerateProgramPath);
-	REGISTER_SINGLE_SAVE_OBJECT(GenerateCompoundWidgetParam);
-	REGISTER_SINGLE_SAVE_OBJECT(EnginePath);
-	REGISTER_SINGLE_SAVE_OBJECT(GenerateCompoundWidgetPath);
-	REGISTER_SINGLE_SAVE_OBJECT(GenerateProgramParam);
-	REGISTER_SINGLE_SAVE_OBJECT(ModifyCharactersPath);
-	REGISTER_SINGLE_SAVE_OBJECT(ModifyCharactersParam);
-	REGISTER_SINGLE_SAVE_OBJECT(ModifyFileCodingPath);
+	REGISTER_SINGLE_SAVE_INFO(EnginePath);
+
+	REGISTER_SAVE_INFOS(GenerateProgram);
+	REGISTER_SAVE_INFOS(GenerateCompoundWidget);
+	REGISTER_SAVE_INFOS(ModifyCharacters);
+	REGISTER_SAVE_INFOS(ModifyFileCoding);
+	REGISTER_SAVE_INFOS(PackageProgram);
 
 	bool CheckPath(const FString& InPath);
+
+	bool CreateDirectory(const FString& InPath);
+	
+	bool CheckEnginePathAndPath(const FString& InPath);
 
 	void OpenMessageDialogByString(const FString& InMessage);
 
@@ -60,6 +63,9 @@ namespace GLCCommonMethods
 	//遍历给定的文件夹，修改给定的字符
 	void ModifyCharactersIteration(const FString& InPath,const FString& InSearch,
 		const FString& InReplace,const FString& InOptionalCondition = FString());
+
+	//打包独立程序
+	void PackageProgram(const FString& InProgramName,const FString& TargetPath);
 	//
 	//
 }

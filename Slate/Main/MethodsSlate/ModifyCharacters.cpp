@@ -36,12 +36,7 @@ FText SModifyCharacters::GetButtonText()
 
 void SModifyCharacters::OnExploreButtonReleased()
 {
-	FString SelectedPath;
-	if (FDesktopPlatformModule::Get()->OpenDirectoryDialog(nullptr, TEXT("选择搜索的文件夹")
-		, GLCCommonMethods::GetModifyCharactersPath(), SelectedPath))
-	{
-		GLCCommonMethods::SetModifyCharactersPath(SelectedPath);
-	}
+	REGISTER_EXPLORE_BUTTON_RELEASE(ModifyCharacters,TEXT("选择搜索的文件夹"));
 }
 
 void SModifyCharacters::OnExecuteButtonReleased()
