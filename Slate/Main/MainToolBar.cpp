@@ -99,5 +99,19 @@ TSharedRef<SWidget> SMainToolBar::GetMethodComboButtons()
 		{
 			GLCSlateMethods::AddModifyCharactersWindow();
 		})
+	]
+
+	+SVerticalBox::Slot()
+	.AutoHeight()
+	.VAlign(EVerticalAlignment::VAlign_Top)
+	.HAlign(EHorizontalAlignment::HAlign_Center)
+	.Padding(4.f)
+	[
+		SNew(SButton)
+		.Text(FText::FromString(TEXT("修改文件编码")))
+		.OnReleased_Lambda([&]()
+		{
+			GLCSlateMethods::AddModifyFileCodingWindow();
+		})
 	];
 }

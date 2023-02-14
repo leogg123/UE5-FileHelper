@@ -8,7 +8,7 @@ void SMethodsSlateBase::Construct(const FArguments& InArgs)
 	return;
 }
 
-void SMethodsSlateBase::ConstructMySlate()
+void SMethodsSlateBase::ConstructMySlate(bool bSpawnEditableText)
 {
 	ChildSlot
 	[
@@ -49,34 +49,41 @@ void SMethodsSlateBase::ConstructMySlate()
 				})
 			]
 		]
+	];
 
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		.Padding(4)
-		[
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+	if(MyVerticalBox)
+	{
+		if(bSpawnEditableText)
+		{
+			//可编辑的文本框
+			MyVerticalBox->AddSlot()
+			.AutoHeight()
 			.HAlign(EHorizontalAlignment::HAlign_Left)
 			.VAlign(EVerticalAlignment::VAlign_Top)
-			.Padding(3)
+			.Padding(4)
 			[
-				SAssignNew(ParamText,SEditableTextBox)
-				.ToolTipText(GetParamToolTipText())
-				.Text(GetDefaultParamText())
-				.OnTextCommitted_Lambda(
-				[&](const FText& InText, ETextCommit::Type InType)
-				{
-					if (!ParamText) return;
-					OnParamTextCommitted(ParamText->GetText());
-				})
-			]
-		]
+				SNew(SHorizontalBox)
 
-		+ SVerticalBox::Slot()
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.HAlign(EHorizontalAlignment::HAlign_Left)
+				.VAlign(EVerticalAlignment::VAlign_Top)
+				.Padding(3)
+				[
+					SAssignNew(ParamText,SEditableTextBox)
+					.ToolTipText(GetParamToolTipText())
+					.Text(GetDefaultParamText())
+					.OnTextCommitted_Lambda(
+					[&](const FText& InText, ETextCommit::Type InType)
+					{
+						if (!ParamText) return;
+						OnParamTextCommitted(ParamText->GetText());
+					})
+				]
+			];
+		}
+		//执行按钮
+		MyVerticalBox->AddSlot()
 		.AutoHeight()
 		.HAlign(EHorizontalAlignment::HAlign_Left)
 		.VAlign(EVerticalAlignment::VAlign_Top)
@@ -88,13 +95,26 @@ void SMethodsSlateBase::ConstructMySlate()
 			{
 				OnExecuteButtonReleased();
 			})
-		]
-		
-	];
+		];
+	}
 }
 
 FText SMethodsSlateBase::GetButtonText()
 {
 	return FText::FromString(TEXT("浏览路径"));
+}
+
+FText SMethodsSlateBase::GetDefaultParamText()
+{
+	return FText();
+}
+
+void SMethodsSlateBase::OnParamTextCommitted(const FText& InText)
+{
+}
+
+FText SMethodsSlateBase::GetParamToolTipText()
+{
+	return FText();
 }
 

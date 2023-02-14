@@ -30,5 +30,9 @@ public:
 	FString ModifyCharactersParam;
 	UPROPERTY(Config)
 	FString ModifyCharactersPath;
+
+	//修改文件编码
+	UPROPERTY(Config)
+	FString ModifyFileCodingPath;
 	
 };

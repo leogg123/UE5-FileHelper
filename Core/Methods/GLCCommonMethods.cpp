@@ -17,8 +17,13 @@ namespace GLCCommonMethods
 
 	void ModifyFileCoding(const FString& InSearchPath, FFileHelper::EEncodingOptions CodingType)
 	{
+		if(!CheckPath(InSearchPath)) return;
+		FGLCOutputLog OutputLog;
+		
 		TArray<FString> FoundFiles;
 		IFileManager::Get().FindFilesRecursive(FoundFiles,*InSearchPath,TEXT("*"),true,false);
+
+		OutputLog.AddNewMessage(FString::Printf(TEXT("共找到文件数量 %d 个"),FoundFiles.Num()));
 		if (FoundFiles.Num())
 		{
 			for (FString& InFileName : FoundFiles)
@@ -27,8 +32,21 @@ namespace GLCCommonMethods
 				FFileHelper::LoadFileToStringArray(FileData,*InFileName);
 				if (FileData.Num())
 				{
-					FFileHelper::SaveStringArrayToFile(FileData,*InFileName,
-						CodingType);
+					if(!IFileManager::Get().Delete(*InFileName,true,true))
+					{
+						OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败"),*InFileName)
+							,FGLCOutputLog::ERROR);
+					}
+					if(FFileHelper::SaveStringArrayToFile(FileData,*InFileName,
+						CodingType))
+					{
+						OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功"),*InFileName));
+					}
+					else
+					{
+						OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败"),*InFileName)
+							,FGLCOutputLog::ERROR);
+					}
 				}
 			}
 		}
@@ -411,6 +429,7 @@ FGLCOutputLog::FGLCOutputLog()
 		[
 			SNew(SScrollBox)
 			.Orientation(EOrientation::Orient_Horizontal)
+			.WheelScrollMultiplier(3)
 
 			+ SScrollBox::Slot()
 			.HAlign(EHorizontalAlignment::HAlign_Fill)
@@ -418,6 +437,7 @@ FGLCOutputLog::FGLCOutputLog()
 			[
 				SAssignNew(ScrollBox, SScrollBox)
 				.Orientation(EOrientation::Orient_Vertical)
+				.WheelScrollMultiplier(3)
 			]
 		];
 	FSlateApplication::Get().AddWindow(LogWindow.ToSharedRef());
@@ -449,13 +469,19 @@ void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType 
 	{
 		ScrollBox->AddSlot()
 		.HAlign(EHorizontalAlignment::HAlign_Fill)
-		.VAlign(EVerticalAlignment::VAlign_Fill)
-		.Padding(4.f)
+		.VAlign(EVerticalAlignment::VAlign_Top)
 		[
-			SNew(STextBlock)
-			.Text(FText::FromString(Log))
-			.ColorAndOpacity(Color)
-			.WrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping)
+			SNew(SHorizontalBox)
+
+			+SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(4.f)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString(Log))
+				.ColorAndOpacity(Color)
+				.AutoWrapText(true)
+			]
 		];
 	}
 }

@@ -4,6 +4,8 @@
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateCompoundWidget.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\ModifyCharacters.h"
+#include "GLCFileHelper\Slate\Main\MethodsSlate\ModifyFileCoding.h"
+
 
 static const FVector2D WindowSize = FVector2D(1000,500);
 
@@ -68,11 +70,11 @@ namespace GLCSlateMethods
 		FSlateApplication::Get().AddWindow(SettingWindow.ToSharedRef());
 	}
 
-	void AddGenerateNewProgramWindow()
+	void AddCommonWindow(const FString& InTitle, const TSharedRef<SWidget>& InWidget)
 	{
-		TSharedPtr<SWindow> GenerateWindow =
+		TSharedPtr<SWindow> NewWindow =
 			SNew(SWindow)
-			.Title(FText::FromString(TEXT("生成新的程序")))
+			.Title(FText::FromString(InTitle))
 			.ClientSize(WindowSize)
 			[
 				SNew(SVerticalBox)
@@ -83,54 +85,30 @@ namespace GLCSlateMethods
 				.VAlign(EVerticalAlignment::VAlign_Top)
 				.Padding(4)
 				[
-					SNew(SGenerateProgram)
+					InWidget
 				]
 			];
 
-		FSlateApplication::Get().AddWindow(GenerateWindow.ToSharedRef());
+		FSlateApplication::Get().AddWindow(NewWindow.ToSharedRef());
+	}
+
+	void AddGenerateNewProgramWindow()
+	{
+		AddCommonWindow(TEXT("生成新的程序"),SNew(SGenerateProgram));
 	}
 
 	void AddGenerateCompoundWidgetWindow()
 	{
-		TSharedPtr<SWindow> GenerateWindow =
-			SNew(SWindow)
-			.Title(FText::FromString(TEXT("生成新的程序")))
-			.ClientSize(WindowSize)
-			[
-				SNew(SVerticalBox)
-
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(EHorizontalAlignment::HAlign_Left)
-				.VAlign(EVerticalAlignment::VAlign_Top)
-				.Padding(4)
-				[
-					SNew(SGenerateCompoundWidget)
-				]
-			];
-
-		FSlateApplication::Get().AddWindow(GenerateWindow.ToSharedRef());
+		AddCommonWindow(TEXT("生成CompoundWidget文件"),SNew(SGenerateCompoundWidget));
 	}
 
 	void AddModifyCharactersWindow()
 	{
-		TSharedPtr<SWindow> GenerateWindow =
-			SNew(SWindow)
-			.Title(FText::FromString(TEXT("修改文件字符")))
-			.ClientSize(WindowSize)
-			[
-				SNew(SVerticalBox)
+		AddCommonWindow(TEXT("修改文件字符"),SNew(SModifyCharacters));
+	}
 
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(EHorizontalAlignment::HAlign_Left)
-				.VAlign(EVerticalAlignment::VAlign_Top)
-				.Padding(4)
-				[
-					SNew(SModifyCharacters)
-				]
-			];
-
-		FSlateApplication::Get().AddWindow(GenerateWindow.ToSharedRef());
+	void AddModifyFileCodingWindow()
+	{
+		AddCommonWindow(TEXT("修改文件编码"),SNew(SModifyFileCoding));
 	}
 }

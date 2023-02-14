@@ -33,6 +33,7 @@ namespace GLCCommonMethods
 	REGISTER_SINGLE_SAVE_OBJECT(GenerateProgramParam);
 	REGISTER_SINGLE_SAVE_OBJECT(ModifyCharactersPath);
 	REGISTER_SINGLE_SAVE_OBJECT(ModifyCharactersParam);
+	REGISTER_SINGLE_SAVE_OBJECT(ModifyFileCodingPath);
 
 	bool CheckPath(const FString& InPath);
 
