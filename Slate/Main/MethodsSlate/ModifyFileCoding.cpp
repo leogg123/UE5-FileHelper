@@ -7,15 +7,19 @@ void SModifyFileCoding::Construct(const FArguments& InArgs)
 {
 	ConstructMySlate(false);
 	
-	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceAnsi"))));
+	/*ItemsArr.Add(MakeShareable(new FName(TEXT("ForceAnsi"))));
 	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUnicode"))));
 	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8"))));
-	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8WithoutBOM"))));
+	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8WithoutBOM"))));*/
+	ItemsArr.Add((FName(TEXT("ForceAnsi"))));
+	ItemsArr.Add((FName(TEXT("ForceUnicode"))));
+	ItemsArr.Add((FName(TEXT("ForceUTF8"))));
+	ItemsArr.Add((FName(TEXT("ForceUTF8WithoutBOM"))));
 
-	ItemToInit = MakeShareable(new FName(GLCCommonMethods::GetModifyFileCodingParam()));
-	if(ItemToInit->IsNone())
+	ItemToInit = FName(GLCCommonMethods::GetModifyFileCodingParam());
+	if(ItemToInit.IsNone())
 	{
-		ItemToInit = MakeShareable(new FName(TEXT("ForceUTF8WithoutBOM")));
+		ItemToInit = FName(TEXT("ForceUTF8WithoutBOM"));
 	}
 	if(MyVerticalBox)
 	{
@@ -48,18 +52,18 @@ void SModifyFileCoding::Construct(const FArguments& InArgs)
 				.InitiallySelectedItem(ItemToInit)
 				.OnSelectionChanged_Lambda([&](const FComboItemType& InItem ,ESelectInfo::Type Info)
 				{
-					GLCCommonMethods::SetModifyFileCodingParam(InItem->ToString());
+					GLCCommonMethods::SetModifyFileCodingParam(InItem.ToString());
 				})
 				.OnGenerateWidget_Lambda([&](const FComboItemType& InItem)->TSharedRef<SWidget>
 				{
 					return
 					SNew(STextBlock)
-					.Text(FText::FromName(*InItem));
+					.Text(FText::FromName(InItem));
 				})
 					[
 						SNew(STextBlock)
 						.Text_Lambda([&]()->FText
-							{return FText::FromName(*ComboBoxPtr->GetSelectedItem());})
+							{return FText::FromName(ComboBoxPtr->GetSelectedItem());})
 					]
 			]
 		];

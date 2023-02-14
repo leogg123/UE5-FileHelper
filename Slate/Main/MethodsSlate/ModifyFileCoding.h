@@ -10,7 +10,7 @@
 class SModifyFileCoding : public SMethodsSlateBase
 {
 public:
-	typedef TSharedPtr<FName> FComboItemType;
+	typedef FName FComboItemType;
 	
 	SLATE_BEGIN_ARGS(SModifyFileCoding )
 	{}
