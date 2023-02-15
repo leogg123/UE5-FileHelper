@@ -27,7 +27,7 @@ FText SGenerateCompoundWidget::GetExplorePathText()
 {
 	FString LastPath = GLCCommonMethods::GetGenerateCompoundWidgetPath().IsEmpty() ? TEXT("空")
 		: GLCCommonMethods::GetGenerateCompoundWidgetPath();
-	return FText::FromString(FString::Printf(TEXT("上次的生成路径 : %s"),*LastPath));
+	return FText::FromString(FString::Printf(TEXT("生成路径 : %s"),*LastPath));
 }
 
 FText SGenerateCompoundWidget::GetButtonText()
@@ -62,5 +62,9 @@ void SGenerateCompoundWidget::OnExecuteButtonReleased()
 			OptionalParent = ParamStrings[1];
 		}
 		GLCCommonMethods::GenerateCompoundWidget(TargetPath,NewSlateName,OptionalParent);
+	}
+	else
+	{
+		GLCCommonMethods::OpenMessageDialogByString(TEXT("请按照提示用正确的格式填写参数"));
 	}
 }

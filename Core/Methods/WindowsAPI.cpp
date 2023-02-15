@@ -56,4 +56,11 @@ namespace GLCWindowAPI
 
 		return result;
 	}
+
+	FVector2D GetSystemScreenSize()
+	{
+		float cx = GetSystemMetrics(SM_CXFULLSCREEN);
+		float cy = GetSystemMetrics(SM_CYFULLSCREEN);
+		return FVector2D(cx,cy);
+	}
 }

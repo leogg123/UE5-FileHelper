@@ -1,16 +1,21 @@
 #include "GLCStartupMethods.h"
+
+#include "WindowsAPI.h"
 #include "Widgets\SWindow.h"
 #include "GLCFileHelper\Slate\Main\Core\MainSlate.h"
+#include "Widgets/SViewport.h"
 
 
 namespace GLCStartupMethods
 {
 	void GLCStartupMethods::InitMySlate()
 	{
+		FVector2D Size = GLCWindowAPI::GetSystemScreenSize();
 		TSharedPtr<SWindow> MainWindow =
 		SNew(SWindow)
 		.Title(FText::FromString(TEXT("GLCFileHelper")))
 		.ClientSize(FVector2D(1100, 600))
+		.AutoCenter(EAutoCenter::PreferredWorkArea)
 		[
 			SNew(SMainSlate)
 		];

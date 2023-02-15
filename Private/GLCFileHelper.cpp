@@ -9,6 +9,7 @@
 #include "GLCFileHelper\Core\Methods\GLCStartupMethods.h"
 #include <Styling/UMGCoreStyle.h>
 #include <GLCFileHelper/Core/Methods/GLCCommonMethods.h>
+#include "GLCFileHelper\Core\Methods\GLCTempMethods.h"
 
 
 IMPLEMENT_APPLICATION(GLCFileHelper, "GLCFileHelper");

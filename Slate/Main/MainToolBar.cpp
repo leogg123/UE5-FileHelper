@@ -72,6 +72,7 @@ TSharedRef<SWidget> SMainToolBar::GetMethodComboButtons()
 	ADD_MY_SLOT(TEXT("修改文件字符"),AddModifyCharactersWindow);
 	ADD_MY_SLOT(TEXT("修改文件编码"),AddModifyFileCodingWindow);
 	ADD_MY_SLOT(TEXT("打包独立程序"),AddPackageProgramWindow);
+	ADD_MY_SLOT(TEXT("添加权利声明"),AddCopyRightWindow);
 	
 	return ToolBarVerticalBox.ToSharedRef();
 }

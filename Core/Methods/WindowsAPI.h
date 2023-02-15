@@ -3,6 +3,6 @@
 
 namespace GLCWindowAPI
 {
-	bool CreateProgramShortcut(const FString& InWorkFileName,
-	                           const FString& ToFileName);
+	bool CreateProgramShortcut(const FString& InWorkFileName, const FString& ToFileName);
+	FVector2D GetSystemScreenSize();
 }

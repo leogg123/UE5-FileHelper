@@ -7,10 +7,6 @@ void SModifyFileCoding::Construct(const FArguments& InArgs)
 {
 	ConstructMySlate(false);
 	
-	/*ItemsArr.Add(MakeShareable(new FName(TEXT("ForceAnsi"))));
-	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUnicode"))));
-	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8"))));
-	ItemsArr.Add(MakeShareable(new FName(TEXT("ForceUTF8WithoutBOM"))));*/
 	ItemsArr.Add((FName(TEXT("ForceAnsi"))));
 	ItemsArr.Add((FName(TEXT("ForceUnicode"))));
 	ItemsArr.Add((FName(TEXT("ForceUTF8"))));

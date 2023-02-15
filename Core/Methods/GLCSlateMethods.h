@@ -18,4 +18,6 @@ namespace GLCSlateMethods
 	void AddModifyFileCodingWindow();
 
 	void AddPackageProgramWindow();
+
+	void AddCopyRightWindow();
 }

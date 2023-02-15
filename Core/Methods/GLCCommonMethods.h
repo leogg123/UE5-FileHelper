@@ -33,6 +33,7 @@ namespace GLCCommonMethods
 	REGISTER_SAVE_INFOS(ModifyCharacters);
 	REGISTER_SAVE_INFOS(ModifyFileCoding);
 	REGISTER_SAVE_INFOS(PackageProgram);
+	REGISTER_SAVE_INFOS(AddCopyRight);
 
 	bool CheckPath(const FString& InPath);
 
@@ -67,6 +68,10 @@ namespace GLCCommonMethods
 	//打包独立程序
 	void PackageProgram(const FString& InProgramName,const FString& TargetPath);
 	//
+
+	//添加权利声明
+	void AddCopyRight(const FString& InSearchPath,FString& InCopyRight);
+	
 	//
 }
 

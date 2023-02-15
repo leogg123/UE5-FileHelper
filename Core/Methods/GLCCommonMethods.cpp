@@ -63,10 +63,16 @@ namespace GLCCommonMethods
 		{
 			const FString EngineProgramSource = GetEnginePath() / TEXT("Engine") / TEXT("Source")
 				/ TEXT("Programs");
-			const FString BlankProgramPath = GetEnginePath() / TEXT("Engine") / TEXT("Source")
+			FString CopiedProgramPath = GetEnginePath() / TEXT("Engine") / TEXT("Source")
 				/ TEXT("Programs") / TEXT("BlankProgram");
+			FString SearchStr = TEXT("BlankProgram");
+			if(!bIsConsoleApp)
+			{
+				CopiedProgramPath = FPaths::ProjectSavedDir() / TEXT("MyTempProgram__");
+				SearchStr = TEXT("MyTempProgram__");
+			}
 			const FString TargetDirectory = InTargetPath / InNewProgramName;
-
+			
 			if (IFileManager::Get().DirectoryExists(*TargetDirectory))
 			{
 				OpenMessageDialogByString(FString::Printf(TEXT("[%s] 程序已经存在 !"), *InNewProgramName));
@@ -74,65 +80,57 @@ namespace GLCCommonMethods
 				return;
 			}
 			FGLCOutputLog OutputLog;
-
-			if (bIsConsoleApp)
+			
+			if (IFileManager::Get().DirectoryExists(*CopiedProgramPath))
 			{
-				if (IFileManager::Get().DirectoryExists(*BlankProgramPath))
+				if (FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*TargetDirectory,
+					*CopiedProgramPath, true))
 				{
-					if (FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*TargetDirectory,
-						*BlankProgramPath, true))
+					OutputLog.AddNewMessage(TEXT("文件夹复制成功"));
+
+					TArray<FString> FileNameStrings;
+					IFileManager::Get().FindFilesRecursive(FileNameStrings, *TargetDirectory, TEXT("*"),
+						true, false);
+					OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件数量 = %d"), FileNameStrings.Num()));
+					if (FileNameStrings.Num())
 					{
-						OutputLog.AddNewMessage(TEXT("文件夹复制成功"));
-
-						TArray<FString> FileNameStrings;
-						IFileManager::Get().FindFilesRecursive(FileNameStrings, *TargetDirectory, TEXT("*"),
-							true, false);
-						OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件数量 = %d"), FileNameStrings.Num()));
-						if (FileNameStrings.Num())
+						for (FString& InFileName : FileNameStrings)
 						{
-							for (FString& InFileName : FileNameStrings)
-							{
-								if(InFileName.Contains(TEXT("ico")))continue;
-								if (InFileName.Contains(TEXT("png")))continue;
+							if(InFileName.Contains(TEXT("ico")))continue;
+							if (InFileName.Contains(TEXT("png")))continue;
 
-								TArray<FString> FileData;
-								if (FFileHelper::LoadFileToStringArray(FileData, *InFileName))
+							TArray<FString> FileData;
+							if (FFileHelper::LoadFileToStringArray(FileData, *InFileName))
+							{
+								for (FString& InData : FileData)
 								{
-									for (FString& InData : FileData)
-									{
-										InData.ReplaceInline(TEXT("BlankProgram"),*InNewProgramName);
-									}
-									if (!IFileManager::Get().Delete(*InFileName, true, true))
-									{
-										OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败！"), *InFileName)
-											, FGLCOutputLog::ERROR);
-									}
-									InFileName.ReplaceInline(TEXT("BlankProgram"),*InNewProgramName);
-									if (FFileHelper::SaveStringArrayToFile(FileData, *InFileName, 
-										FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
-									{
-										OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功！"), *InFileName)
-											, FGLCOutputLog::DISPLAY);
-									}
-									else
-									{
-										OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败！"),*InFileName)
-											,FGLCOutputLog::ERROR);
-									}
+									InData.ReplaceInline(*SearchStr,*InNewProgramName);
+								}
+								if (!IFileManager::Get().Delete(*InFileName, true, true))
+								{
+									OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败！"), *InFileName)
+										, FGLCOutputLog::ERROR);
+								}
+								InFileName.ReplaceInline(*SearchStr,*InNewProgramName);
+								if (FFileHelper::SaveStringArrayToFile(FileData, *InFileName, 
+									FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
+								{
+									OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功！"), *InFileName)
+										, FGLCOutputLog::DISPLAY);
+								}
+								else
+								{
+									OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败！"),*InFileName)
+										,FGLCOutputLog::ERROR);
 								}
 							}
 						}
 					}
-
 				}
 				else
 				{
-					OpenMessageDialogByString(FString::Printf(TEXT("[%s] 文件夹不存在"),*BlankProgramPath));
+					OpenMessageDialogByString(FString::Printf(TEXT("[%s] 文件夹不存在"),*CopiedProgramPath));
 				}
-			}
-			else
-			{
-				
 			}
 			OutputLog.AddNewMessage(TEXT("完成"));
 			FPlatformProcess::ExploreFolder(*InTargetPath);
@@ -532,6 +530,52 @@ namespace GLCCommonMethods
 				OutputLog.AddNewMessage(TEXT("完成！"));
 				FPlatformProcess::ExploreFolder(*NewTargetPath);
 			}
+		}
+	}
+
+	void AddCopyRight(const FString& InSearchPath, FString& InCopyRight)
+	{
+		if(CheckPath(InSearchPath))
+		{
+			if(!InCopyRight.Contains(TEXT("//")))
+			{
+				InCopyRight.InsertAt(0,TEXT("//"));
+			}
+			
+			TArray<FString> FileNames;
+			IFileManager::Get().FindFilesRecursive(FileNames,
+				*InSearchPath,TEXT("*"),true,false);
+
+			FGLCOutputLog OutputLog;
+			for(FString& InFileName : FileNames)
+			{
+				TArray<FString> FileData;
+				if(FFileHelper::LoadFileToStringArray(FileData,*InFileName))
+				{
+					TArray<FString> CopiedFileData = FileData;
+					for(int32 i = 0;i < 5;++i)
+					{
+						if(CopiedFileData.IsValidIndex(i) && CopiedFileData[i].Contains(TEXT("//")))
+						{
+							FileData.RemoveSingle(CopiedFileData[i]);
+							OutputLog.AddNewMessage(FString::Printf(TEXT("移除了原有声明 [%s] 在 [%s]"),*CopiedFileData[i],*InFileName));
+						}
+					}
+					FileData.Insert(InCopyRight,0);
+					if(FFileHelper::SaveStringArrayToFile(FileData,*InFileName))
+					{
+						OutputLog.AddNewMessage(FString::Printf(TEXT("在 [%s] 添加新声明"),*InFileName));
+					}
+					else
+					{
+						OutputLog.AddNewMessage(FString::Printf(TEXT("在 [%s] 添加新声明失败"),*InFileName),
+							FGLCOutputLog::WARNING);
+					}
+					
+				}
+			}
+			OutputLog.AddNewMessage(TEXT("完成！"));
+			FPlatformProcess::ExploreFolder(*InSearchPath);
 		}
 	}
 

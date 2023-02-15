@@ -15,7 +15,7 @@ FText SGenerateProgram::GetDefaultParamText()
 
 FText SGenerateProgram::GetParamToolTipText()
 {
-	return FText::FromString(TEXT("填写生成的新程序名字"));
+	return FText::FromString(TEXT("填写生成的新程序名字，是否是独立程序(可选，用于区别控制台应用，如未填写默认为true，用&&分割)"));
 }
 
 void SGenerateProgram::OnParamTextCommitted(const FText& InText)
@@ -27,7 +27,7 @@ FText SGenerateProgram::GetExplorePathText()
 {
 	FString LastPath = GLCCommonMethods::GetGenerateProgramPath().IsEmpty() ? TEXT("无保存路径")
 		: GLCCommonMethods::GetGenerateProgramPath();
-	return FText::FromString(FString::Printf(TEXT("上次的生成路径 : %s"),*LastPath));
+	return FText::FromString(FString::Printf(TEXT("生成路径 : %s"),*LastPath));
 }
 
 FText SGenerateProgram::GetButtonText()
@@ -44,8 +44,24 @@ void SGenerateProgram::OnExecuteButtonReleased()
 {
 	if (ParamText)
 	{
-		FString NewProgram = ParamText->GetText().ToString();
-		GLCCommonMethods::GenerateNewProgram(NewProgram);
+		FString Param = ParamText->GetText().ToString();
+		bool bIsConsole = false;
+
+		TArray<FString> NewStrings;
+		if(Param.ParseIntoArray(NewStrings,TEXT("&&")) > 1)
+		{
+			if(NewStrings.Num() == 2)
+			{
+				Param = NewStrings[0];
+				bIsConsole = NewStrings[1].ToBool();
+			}
+			else
+			{
+				GLCCommonMethods::OpenMessageDialogByString(TEXT("请按照提示正确填写参数"));
+				return;
+			}
+		}
+		GLCCommonMethods::GenerateNewProgram(Param,bIsConsole);
 	}
 	
 }

@@ -33,5 +33,9 @@ public:
 	//打包独立程序
 	UPROPERTY(Config)
 	FGLCSaveInfo PackageProgram;
+
+	//添加权利声明
+	UPROPERTY(Config)
+	FGLCSaveInfo AddCopyRight;
 	
 };

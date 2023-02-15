@@ -2,6 +2,7 @@
 #include "GLCCommonMethods.h"
 #include <DesktopPlatformModule.h>
 
+#include "GLCFileHelper/Slate/Main/MethodsSlate/AddCopyRight.h"
 #include "GLCFileHelper/Slate/Main/MethodsSlate/PackageProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateCompoundWidget.h"
@@ -117,5 +118,10 @@ namespace GLCSlateMethods
 	void AddPackageProgramWindow()
 	{
 		AddCommonWindow(TEXT("打包独立程序"),SNew(SPackageProgram));
+	}
+
+	void AddCopyRightWindow()
+	{
+		AddCommonWindow(TEXT("添加权利声明"),SNew(SAddCopyRight));
 	}
 }
