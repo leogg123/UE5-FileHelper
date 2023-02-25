@@ -10,7 +10,6 @@ namespace GLCStartupMethods
 {
 	void GLCStartupMethods::InitMySlate()
 	{
-		FVector2D Size = GLCWindowAPI::GetSystemScreenSize();
 		TSharedPtr<SWindow> MainWindow =
 		SNew(SWindow)
 		.Title(FText::FromString(TEXT("GLCFileHelper")))

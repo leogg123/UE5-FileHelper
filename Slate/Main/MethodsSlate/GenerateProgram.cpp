@@ -53,7 +53,7 @@ void SGenerateProgram::OnExecuteButtonReleased()
 			if(NewStrings.Num() == 2)
 			{
 				Param = NewStrings[0];
-				bIsConsole = NewStrings[1].ToBool();
+				bIsConsole = !NewStrings[1].ToBool();
 			}
 			else
 			{

@@ -6,21 +6,6 @@
 
 class UGLCSaveObject;
 
-struct GLCFILEHELPER_API FGLCOutputLog
-{
-	enum EMessageType
-	{
-		DISPLAY,
-		WARNING,
-		ERROR
-	};
-
-	FGLCOutputLog();
-
-	void AddNewMessage(const FString& InMessage,EMessageType InType = EMessageType::DISPLAY);
-protected:
-	TSharedPtr<SScrollBox> ScrollBox;
-};
 
 namespace GLCCommonMethods
 {
@@ -34,6 +19,7 @@ namespace GLCCommonMethods
 	REGISTER_SAVE_INFOS(ModifyFileCoding);
 	REGISTER_SAVE_INFOS(PackageProgram);
 	REGISTER_SAVE_INFOS(AddCopyRight);
+	REGISTER_SAVE_INFOS(FixInclude);
 
 	bool CheckPath(const FString& InPath);
 
@@ -71,6 +57,9 @@ namespace GLCCommonMethods
 
 	//添加权利声明
 	void AddCopyRight(const FString& InSearchPath,FString& InCopyRight);
+
+	//修复头文件包含问题
+	void FixInclude(const FString& InSearchDir);
 	
 	//
 }

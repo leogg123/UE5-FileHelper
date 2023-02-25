@@ -3,6 +3,8 @@
 #include <HAL/PlatformFileManager.h>
 
 #include "WindowsAPI.h"
+#include "GLCFileHelper\Core\Type\GLCOutPutLog.h"
+#include "HAL/RunnableThread.h"
 
 namespace GLCCommonMethods
 {
@@ -20,12 +22,11 @@ namespace GLCCommonMethods
 	void ModifyFileCoding(const FString& InSearchPath, FFileHelper::EEncodingOptions CodingType)
 	{
 		if(!CheckEnginePathAndPath(InSearchPath)) return;
-		FGLCOutputLog OutputLog;
 		
 		TArray<FString> FoundFiles;
 		IFileManager::Get().FindFilesRecursive(FoundFiles,*InSearchPath,TEXT("*"),true,false);
 
-		OutputLog.AddNewMessage(FString::Printf(TEXT("共找到文件数量 %d 个"),FoundFiles.Num()));
+		FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("共找到文件数量 %d 个"),FoundFiles.Num()));
 		if (FoundFiles.Num())
 		{
 			for (FString& InFileName : FoundFiles)
@@ -36,18 +37,18 @@ namespace GLCCommonMethods
 				{
 					if(!IFileManager::Get().Delete(*InFileName,true,true))
 					{
-						OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败"),*InFileName)
-							,FGLCOutputLog::ERROR);
+						FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败"),*InFileName)
+							,FGLCOutputLog::GLC_ERROR);
 					}
 					if(FFileHelper::SaveStringArrayToFile(FileData,*InFileName,
 						CodingType))
 					{
-						OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功"),*InFileName));
+						FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功"),*InFileName));
 					}
 					else
 					{
-						OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败"),*InFileName)
-							,FGLCOutputLog::ERROR);
+						FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败"),*InFileName)
+							,FGLCOutputLog::GLC_ERROR);
 					}
 				}
 			}
@@ -79,19 +80,18 @@ namespace GLCCommonMethods
 				FPlatformProcess::ExploreFolder(*InTargetPath);
 				return;
 			}
-			FGLCOutputLog OutputLog;
 			
 			if (IFileManager::Get().DirectoryExists(*CopiedProgramPath))
 			{
 				if (FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*TargetDirectory,
 					*CopiedProgramPath, true))
 				{
-					OutputLog.AddNewMessage(TEXT("文件夹复制成功"));
+					FGLCOutputLog::AddNewMessage(TEXT("文件夹复制成功"));
 
 					TArray<FString> FileNameStrings;
 					IFileManager::Get().FindFilesRecursive(FileNameStrings, *TargetDirectory, TEXT("*"),
 						true, false);
-					OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件数量 = %d"), FileNameStrings.Num()));
+					FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("找到文件数量 = %d"), FileNameStrings.Num()));
 					if (FileNameStrings.Num())
 					{
 						for (FString& InFileName : FileNameStrings)
@@ -108,20 +108,20 @@ namespace GLCCommonMethods
 								}
 								if (!IFileManager::Get().Delete(*InFileName, true, true))
 								{
-									OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败！"), *InFileName)
-										, FGLCOutputLog::ERROR);
+									FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件删除失败！"), *InFileName)
+										, FGLCOutputLog::GLC_ERROR);
 								}
 								InFileName.ReplaceInline(*SearchStr,*InNewProgramName);
 								if (FFileHelper::SaveStringArrayToFile(FileData, *InFileName, 
 									FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 								{
-									OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功！"), *InFileName)
-										, FGLCOutputLog::DISPLAY);
+									FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件保存成功！"), *InFileName)
+										, FGLCOutputLog::GLC_DISPLAY);
 								}
 								else
 								{
-									OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败！"),*InFileName)
-										,FGLCOutputLog::ERROR);
+									FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件保存失败！"),*InFileName)
+										,FGLCOutputLog::GLC_ERROR);
 								}
 							}
 						}
@@ -132,7 +132,7 @@ namespace GLCCommonMethods
 					OpenMessageDialogByString(FString::Printf(TEXT("[%s] 文件夹不存在"),*CopiedProgramPath));
 				}
 			}
-			OutputLog.AddNewMessage(TEXT("完成"));
+			FGLCOutputLog::AddNewMessage(TEXT("完成"));
 			FPlatformProcess::ExploreFolder(*InTargetPath);
 		}		
 	}
@@ -257,13 +257,12 @@ namespace GLCCommonMethods
 			const FString Target_hFile = InTargetPath / InNewSlateName + TEXT(".h");
 			const FString Target_cppFile = InTargetPath / InNewSlateName + TEXT(".cpp");
 
-			FGLCOutputLog OutputLog;
 			if (IFileManager::Get().Copy(*Target_hFile, *Temp_hFile) == ECopyResult::COPY_OK)
 			{
-				OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"),*Temp_hFile,*InTargetPath));
+				FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"),*Temp_hFile,*InTargetPath));
 				if (IFileManager::Get().Copy(*Target_cppFile, *Temp_cppFile) == ECopyResult::COPY_OK)
 				{
-					OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"), *Temp_cppFile, *InTargetPath));
+					FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件复制到 [%s]"), *Temp_cppFile, *InTargetPath));
 					
 					auto ModifyFile = [&](bool bIscpp,TFunction<void(FString& InString)>fun = nullptr)
 					{
@@ -282,7 +281,7 @@ namespace GLCCommonMethods
 							IFileManager::Get().Delete(*FileName, true, true);
 							if (FFileHelper::SaveStringArrayToFile(Data, *FileName, FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))
 							{
-								OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件修改成功"), *FileName));
+								FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件修改成功"), *FileName));
 							}
 						}
 					};
@@ -323,7 +322,7 @@ namespace GLCCommonMethods
 
 					//处理复制的.cpp文件
 					ModifyFile(true);
-					OutputLog.AddNewMessage(TEXT("完成"));
+					FGLCOutputLog::AddNewMessage(TEXT("完成"));
 					FPlatformProcess::ExploreFolder(*InTargetPath);
 				}
 			}
@@ -335,13 +334,12 @@ namespace GLCCommonMethods
 	{
 		if(CheckEnginePathAndPath(InPath))
 		{
-			FGLCOutputLog OutputLog;
 			int32 Count = 0;
 			
 			TArray<FString> FileNames;
 			IFileManager::Get().FindFilesRecursive(FileNames,*InPath,
 				TEXT("*"),true,false);
-			OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件 %d 个"),FileNames.Num()));
+			FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("找到文件 %d 个"),FileNames.Num()));
 			if(FileNames.Num())
 			{
 				for(FString& TempFileName : FileNames)
@@ -384,14 +382,14 @@ namespace GLCCommonMethods
 
 						if(Count != LastCount)
 						{
-							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件被修改"),*TempFileName));
-							OutputLog.AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件被修改"),*TempFileName));
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
 						}
 					}
 				}
 
-				OutputLog.AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
-				OutputLog.AddNewMessage(TEXT("完成 !"));
+				FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
+				FGLCOutputLog::AddNewMessage(TEXT("完成 !"));
 			}
 		}
 	}
@@ -417,11 +415,15 @@ namespace GLCCommonMethods
 			const FString TargetSave = NewTargetPath / TEXT("Engine") / TEXT("Programs")
 				/ InProgramName;
 			const FString TargetShader = NewTargetPath / TEXT("Engine") / TEXT("Shaders");
+
+			if (IFileManager::Get().DirectoryExists(*NewTargetPath))
+			{
+				IFileManager::Get().DeleteDirectory(*NewTargetPath,true,true);
+			}
 			
 			if(CheckPath(*EngineWin64BinaryDir) && CheckPath(EngineContentOfSlate)
 				&& CheckPath(ProgramSave))
 			{
-				FGLCOutputLog OutputLog;
 
 				auto CopyFiles = [&](const FString& FromDir,const FString& ToDir,bool bCopyAll)
 				{
@@ -432,12 +434,12 @@ namespace GLCCommonMethods
 						if(FPlatformFileManager::Get().GetPlatformFile().CopyDirectoryTree(*ToDir,
 							*FromDir,true))
 						{
-							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件夹打包成功"),*FromDir));
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件夹打包成功"),*FromDir));
 						}
 						else
 						{
-							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件夹存在打包失败的文件"),*FromDir),
-								FGLCOutputLog::WARNING);
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件夹存在打包失败的文件"),*FromDir),
+								FGLCOutputLog::GLC_WARNING);
 						}
 						return;
 					}
@@ -484,12 +486,12 @@ namespace GLCCommonMethods
 						const FString NewFileName = FPaths::GetPath(NewDir) / FPaths::GetCleanFilename(InFileName);
 						if(IFileManager::Get().Copy(*NewFileName,*InFileName,true,true) == ECopyResult::COPY_OK)
 						{
-							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件打包成功"),*InFileName));
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件打包成功"),*InFileName));
 						}
 						else
 						{
-							OutputLog.AddNewMessage(FString::Printf(TEXT("[%s] 文件打包失败"),*InFileName),
-								FGLCOutputLog::WARNING);
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件打包失败"),*InFileName),
+								FGLCOutputLog::GLC_WARNING);
 						}
 					}
 				};
@@ -517,17 +519,17 @@ namespace GLCCommonMethods
 						if(GLCWindowAPI::CreateProgramShortcut(InFileName,
 						ShortcutFileName))
 						{
-							OutputLog.AddNewMessage(TEXT("快捷方式创建成功"));
+							FGLCOutputLog::AddNewMessage(TEXT("快捷方式创建成功"));
 						}
 						else
 						{
-							OutputLog.AddNewMessage(TEXT("快捷方式创建失败"),FGLCOutputLog::WARNING);
+							FGLCOutputLog::AddNewMessage(TEXT("快捷方式创建失败"),FGLCOutputLog::GLC_WARNING);
 						}
 						break;
 					}
 				}
 				
-				OutputLog.AddNewMessage(TEXT("完成！"));
+				FGLCOutputLog::AddNewMessage(TEXT("完成！"));
 				FPlatformProcess::ExploreFolder(*NewTargetPath);
 			}
 		}
@@ -546,7 +548,6 @@ namespace GLCCommonMethods
 			IFileManager::Get().FindFilesRecursive(FileNames,
 				*InSearchPath,TEXT("*"),true,false);
 
-			FGLCOutputLog OutputLog;
 			for(FString& InFileName : FileNames)
 			{
 				TArray<FString> FileData;
@@ -558,25 +559,46 @@ namespace GLCCommonMethods
 						if(CopiedFileData.IsValidIndex(i) && CopiedFileData[i].Contains(TEXT("//")))
 						{
 							FileData.RemoveSingle(CopiedFileData[i]);
-							OutputLog.AddNewMessage(FString::Printf(TEXT("移除了原有声明 [%s] 在 [%s]"),*CopiedFileData[i],*InFileName));
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("移除了原有声明 [%s] 在 [%s]"),*CopiedFileData[i],*InFileName));
 						}
 					}
 					FileData.Insert(InCopyRight,0);
 					if(FFileHelper::SaveStringArrayToFile(FileData,*InFileName))
 					{
-						OutputLog.AddNewMessage(FString::Printf(TEXT("在 [%s] 添加新声明"),*InFileName));
+						FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("在 [%s] 添加新声明"),*InFileName));
 					}
 					else
 					{
-						OutputLog.AddNewMessage(FString::Printf(TEXT("在 [%s] 添加新声明失败"),*InFileName),
-							FGLCOutputLog::WARNING);
+						FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("在 [%s] 添加新声明失败"),*InFileName),
+							FGLCOutputLog::GLC_WARNING);
 					}
 					
 				}
 			}
-			OutputLog.AddNewMessage(TEXT("完成！"));
+			FGLCOutputLog::AddNewMessage(TEXT("完成！"));
 			FPlatformProcess::ExploreFolder(*InSearchPath);
 		}
+	}
+
+	void FixInclude(const FString& InSearchDir)
+	{
+		/*if(CheckEnginePathAndPath(InSearchDir))
+		{
+			TArray<FString> FileNames;
+			IFileManager::Get().FindFilesRecursive(FileNames,*InSearchDir,TEXT("*"),
+				true,false);
+
+			FGLCOutputLog OutputLog;
+			for(FString& InFileName : FileNames)
+			{
+				TArray<FString> FileData;
+				if(FFileHelper::LoadFileToStringArray(FileData,
+					*InFileName))
+				{
+					
+				}
+			}
+		}*/
 	}
 
 	bool CheckPath(const FString& InPath)
@@ -617,70 +639,4 @@ namespace GLCCommonMethods
 			FText::FromString(InMessage),&Title);
 	}
 
-}
-
-FGLCOutputLog::FGLCOutputLog()
-{
-	TSharedPtr<SWindow> LogWindow =
-		SNew(SWindow)
-		.Title(FText::FromString(TEXT("GLCFileHelperOutputLog")))
-		.ClientSize(FVector2D(1100, 500))
-		[
-			SNew(SScrollBox)
-			.Orientation(EOrientation::Orient_Horizontal)
-			.WheelScrollMultiplier(3)
-
-			+ SScrollBox::Slot()
-			.HAlign(EHorizontalAlignment::HAlign_Fill)
-			.VAlign(EVerticalAlignment::VAlign_Fill)
-			[
-				SAssignNew(ScrollBox, SScrollBox)
-				.Orientation(EOrientation::Orient_Vertical)
-				.WheelScrollMultiplier(3)
-			]
-		];
-	FSlateApplication::Get().AddWindow(LogWindow.ToSharedRef());
-}
-
-void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType /*= EMessageType::DISPLAY*/)
-{
-	FString Log = TEXT("GLCFileHelper: ");
-	FLinearColor Color = FLinearColor::White;
-	switch (InType)
-	{
-	case FGLCOutputLog::DISPLAY:
-		Log += TEXT("Display: ");
-		break;
-	case FGLCOutputLog::WARNING:
-		Log += TEXT("Warning: ");
-		Color = FLinearColor::Yellow;
-		break;
-	case FGLCOutputLog::ERROR:
-		Log += TEXT("Error: ");
-		Color = FLinearColor::Red;
-		break;
-	default:
-		break;
-	}
-
-	Log += InMessage;
-	if (ScrollBox)
-	{
-		ScrollBox->AddSlot()
-		.HAlign(EHorizontalAlignment::HAlign_Fill)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		[
-			SNew(SHorizontalBox)
-
-			+SHorizontalBox::Slot()
-			.FillWidth(0.9f)
-			.Padding(4.f)
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString(Log))
-				.ColorAndOpacity(Color)
-				.AutoWrapText(true)
-			]
-		];
-	}
 }

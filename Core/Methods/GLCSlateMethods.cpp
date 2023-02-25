@@ -3,6 +3,7 @@
 #include <DesktopPlatformModule.h>
 
 #include "GLCFileHelper/Slate/Main/MethodsSlate/AddCopyRight.h"
+#include "GLCFileHelper/Slate/Main/MethodsSlate/FixInclude.h"
 #include "GLCFileHelper/Slate/Main/MethodsSlate/PackageProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateCompoundWidget.h"
@@ -123,5 +124,10 @@ namespace GLCSlateMethods
 	void AddCopyRightWindow()
 	{
 		AddCommonWindow(TEXT("添加权利声明"),SNew(SAddCopyRight));
+	}
+
+	void AddFixIncludeWindow()
+	{
+		AddCommonWindow(TEXT("修复头文件包含问题"),SNew(SFixInclude));
 	}
 }

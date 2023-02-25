@@ -37,5 +37,9 @@ public:
 	//添加权利声明
 	UPROPERTY(Config)
 	FGLCSaveInfo AddCopyRight;
+
+	//修复include 问题
+	UPROPERTY(Config)
+	FGLCSaveInfo FixInclude;
 	
 };

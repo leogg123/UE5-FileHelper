@@ -1,18 +1,18 @@
 #include "GLCTempMethods.h"
 #include "GLCCommonMethods.h"
+#include "GLCFileHelper\Core\Type\GLCOutPutLog.h"
 
 
 namespace GLCTempMethods
 {
 	void ModifyNotesIteration(const FString& InPath)
 	{
-		FGLCOutputLog OutputLog;
 		int32 Count = 0;
 
 		TArray<FString> FileNames;
 		IFileManager::Get().FindFilesRecursive(FileNames, *InPath,
 			TEXT("*"), true, false);
-		OutputLog.AddNewMessage(FString::Printf(TEXT("找到文件 %d 个"), FileNames.Num()));
+		FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("找到文件 %d 个"), FileNames.Num()));
 		if (FileNames.Num())
 		{
 			for (FString& TempFileName : FileNames)
@@ -36,7 +36,7 @@ namespace GLCTempMethods
 								}
 								if (Count != LastCount)
 								{
-									OutputLog.AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
+									FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"),Count));
 								}
 							}
 						}
@@ -47,8 +47,8 @@ namespace GLCTempMethods
 				}
 			}
 
-			OutputLog.AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"), Count));
-			OutputLog.AddNewMessage(TEXT("完成 !"));
+			FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("当前修改的总行数为 %d"), Count));
+			FGLCOutputLog::AddNewMessage(TEXT("完成 !"));
 		}
 	}
 }

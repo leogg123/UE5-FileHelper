@@ -53,7 +53,7 @@ namespace GLCWindowAPI
 			}
 			CoUninitialize();
 		}
-
+		int32 i = 100;
 		return result;
 	}
 

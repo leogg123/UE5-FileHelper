@@ -20,4 +20,6 @@ namespace GLCSlateMethods
 	void AddPackageProgramWindow();
 
 	void AddCopyRightWindow();
+
+	void AddFixIncludeWindow();
 }

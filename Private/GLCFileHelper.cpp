@@ -10,6 +10,7 @@
 #include <Styling/UMGCoreStyle.h>
 #include <GLCFileHelper/Core/Methods/GLCCommonMethods.h>
 #include "GLCFileHelper\Core\Methods\GLCTempMethods.h"
+#include "GLCFileHelper\Core\Type\GLCOutPutLog.h"
 
 
 IMPLEMENT_APPLICATION(GLCFileHelper, "GLCFileHelper");
@@ -23,15 +24,18 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance, PSTR szCmdLin
 	FSlateApplication::InitializeCoreStyle();
 
 	GLCStartupMethods::InitMySlate();
+	FGLCOutputLog::Create();
 
 	while (!IsEngineExitRequested())
 	{
 		BeginExitIfRequested();
 		FSlateApplication::Get().Tick();
 		FSlateApplication::Get().PumpMessages();
-		//FPlatformProcess::Sleep(0.01f);
+		MyOutputLog->Tick();
+		//FPlatformProcess::Sleep(0.03f);
 	}
 
+	FGLCOutputLog::DestroyLog();
 	FSlateApplication::Shutdown();
 	FEngineLoop::AppPreExit();
 	FEngineLoop::AppExit();
