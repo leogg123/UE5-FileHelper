@@ -30,7 +30,7 @@ namespace GLCCommonMethods
 	void OpenMessageDialogByString(const FString& InMessage);
 
 	//通过Source里的某个文件找到根目录
-	bool GetSourceDirAndProgramNameByFileName(const FString& InFileName,FString& OutSourceDir,FString& OutProgramName);
+	bool FindFileSpecInfo(const FString& InFileName,FGLCSearchInfo& OutInfo);
 
 	//根据给定信息找到文件的include(绝对路径)
 	bool GetFileIncludeByClassName(const FString& InClassName, const FString& InProgramName,

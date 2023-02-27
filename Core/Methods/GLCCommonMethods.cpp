@@ -137,8 +137,7 @@ namespace GLCCommonMethods
 		}		
 	}
 
-	bool GetSourceDirAndProgramNameByFileName(const FString& InFileName, FString& OutSourceDir,
-		FString& OutProgramName)
+	bool FindFileSpecInfo(const FString& InFileName,FGLCSearchInfo& OutInfo)
 	{
 		FString NewTargetPath = InFileName;
 		FPaths::NormalizeDirectoryName(NewTargetPath);
@@ -166,13 +165,16 @@ namespace GLCCommonMethods
 				{
 					if (TempFileName.Contains(TEXT("Build.cs")))
 					{
+						OutInfo.Build_cs_Path = TempFileName;
+						
 						FPaths::NormalizeFilename(TempFileName);
-						OutSourceDir = FPaths::GetPath(TempFileName);
+						OutInfo.SourceDir_Complete = FPaths::GetPath(TempFileName);
 						
 						TArray<FString> PathParseStrings;
-						OutSourceDir.ParseIntoArray(PathParseStrings,TEXT("/"));
+						OutInfo.SourceDir_Complete.ParseIntoArray(PathParseStrings,TEXT("/"));
 
-						OutProgramName = PathParseStrings.Last();
+						OutInfo.ModuleName = PathParseStrings.Last();
+						
 						bFind = true;
 						break;
 					}
@@ -288,15 +290,14 @@ namespace GLCCommonMethods
 					
 
 					//找到程序的Source文件夹
-					FString SourceDir;
-					FString ProgramName;
 					FString IncludeString;
+					FGLCSearchInfo SearchInfo;
 
 					bool bFind = false;
 					if (!OptionalParent.IsEmpty())
 					{
-						GetSourceDirAndProgramNameByFileName(InTargetPath, SourceDir, ProgramName);
-						bFind = GetFileIncludeByClassName(OptionalParent, ProgramName, SourceDir, IncludeString);
+						FindFileSpecInfo(InTargetPath,SearchInfo);
+						bFind = GetFileIncludeByClassName(OptionalParent, SearchInfo.ModuleName, SearchInfo.SourceDir_Complete, IncludeString);
 						
 						if (!bFind)
 						{
@@ -582,23 +583,111 @@ namespace GLCCommonMethods
 
 	void FixInclude(const FString& InSearchDir)
 	{
-		/*if(CheckEnginePathAndPath(InSearchDir))
+		int32 Count = 0;
+		if(CheckEnginePathAndPath(InSearchDir))
 		{
+			FGLCOutputLog::AddNewMessage(TEXT("处理中..."));
 			TArray<FString> FileNames;
 			IFileManager::Get().FindFilesRecursive(FileNames,*InSearchDir,TEXT("*"),
 				true,false);
+			FGLCOutputLog::AddNewMessage(
+				FString::Printf(TEXT("搜索到文件共 %d 个"),FileNames.Num()));
 
-			FGLCOutputLog OutputLog;
+			FString CurrentModule;
 			for(FString& InFileName : FileNames)
 			{
+				FGLCSearchInfo SearchInfo;
+				FindFileSpecInfo(InFileName,SearchInfo);
+				//加载文件内容
 				TArray<FString> FileData;
 				if(FFileHelper::LoadFileToStringArray(FileData,
 					*InFileName))
 				{
-					
+					int32 LineCount = 0;
+					for(FString& Data : FileData)
+					{
+						if(++LineCount == 200)break;
+
+						//测试
+						if(Data.Contains(TEXT("我的测试")))
+						{
+							FString ab;
+						}
+						
+						if(Data.Contains(TEXT("#include"))&&
+							!Data.Contains(TEXT("generated.h")))
+						{
+							FString CopyData = Data;
+							CopyData.ReplaceInline(TEXT("#include"),TEXT(""));
+							CopyData.ReplaceInline(TEXT("\""),TEXT(""));
+							CopyData.ReplaceInline(TEXT("<"),TEXT(""));
+							CopyData.ReplaceInline(TEXT(">"),TEXT(""));
+							CopyData.RemoveSpacesInline();
+
+							
+							if(IFileManager::Get().FileExists(*(SearchInfo.SourceDir_Complete / TEXT("Public") / CopyData))
+								|| IFileManager::Get().FileExists(*(SearchInfo.SourceDir_Complete / TEXT("Private") / CopyData)))
+							{
+								continue;
+							}
+
+							FString ClearFileName = FPaths::GetCleanFilename(CopyData);
+							FString NewInclude;
+
+							//获取include 路径
+							for(FString& NewFileName : FileNames)
+							{
+								if(FPaths::GetCleanFilename(NewFileName) == ClearFileName)
+								{
+									TArray<FString> ParseStr;
+									FPaths::NormalizeFilename(NewFileName);
+									NewFileName.ParseIntoArray(ParseStr,TEXT("/"));
+
+									bool bFind = false;
+									for(FString& InStr : ParseStr)
+									{
+										if(!bFind)
+										{
+											if(InStr.Contains(TEXT("Public")) ||
+											InStr.Contains(TEXT("Private")))
+											{
+												bFind = true;
+											}
+										}
+										else
+										{
+											NewInclude += InStr + TEXT("/");
+										}
+									}
+									NewInclude.RemoveFromEnd(TEXT("/"));
+									break;
+								}
+							}
+
+							const FString TempData = Data;
+							if(!NewInclude.IsEmpty())
+							{
+								Data = FString::Printf(TEXT("#include \"%s\""),*NewInclude);
+								++Count;
+								
+								FGLCOutputLog::AddNewMessage(
+									FString::Printf(TEXT("[%s] 文件中的 [%s] 被替换成 [%s]"),
+										*InFileName,*TempData,*Data));
+							}
+							/*else
+							{
+								FGLCOutputLog::AddNewMessage(
+									FString::Printf(TEXT("[%s] 文件中的 [%s] 替换失败！"),
+										*InFileName,*TempData),FGLCOutputLog::GLC_ERROR);
+							}*/
+						}
+					}
+					FFileHelper::SaveStringArrayToFile(FileData,*InFileName);
 				}
 			}
-		}*/
+		}
+		FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("%d 个文件被处理"),Count));
+		FGLCOutputLog::AddNewMessage(TEXT("完成！"));
 	}
 
 	bool CheckPath(const FString& InPath)

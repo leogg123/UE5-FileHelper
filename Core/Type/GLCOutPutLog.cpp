@@ -14,34 +14,6 @@ FGLCOutputLog::FGLCOutputLog()
 
 void FGLCOutputLog::AddNewMessage(const FString& InMessage, EMessageType InType /*= EMessageType::DISPLAY*/)
 {
-	if(!bIsLogWindowShow)
-	{
-		OutputInfo.OutputWindow =
-			SNew(SWindow)
-			.Title(FText::FromString(TEXT("GLCFileHelperOutputLog")))
-			.ClientSize(FVector2D(1100, 500))
-			[
-				SNew(SScrollBox)
-				.Orientation(EOrientation::Orient_Horizontal)
-				.WheelScrollMultiplier(3)
-
-				+ SScrollBox::Slot()
-				.HAlign(EHorizontalAlignment::HAlign_Fill)
-				.VAlign(EVerticalAlignment::VAlign_Fill)
-				[
-					SAssignNew(OutputInfo.ScrollBox, SScrollBox)
-					.Orientation(EOrientation::Orient_Vertical)
-					.WheelScrollMultiplier(3)
-				]
-			];
-		FOnWindowClosed CloseEven;
-		CloseEven.BindLambda([&](const TSharedRef<SWindow>& InWindow) {bIsLogWindowShow = false; });
-		OutputInfo.OutputWindow->SetOnWindowClosed(CloseEven);
-		FSlateApplication::Get().AddWindow(OutputInfo.OutputWindow.ToSharedRef());
-
-		bIsLogWindowShow = true;
-	}
-	
 	FString Log = TEXT("GLCFileHelper: ");
 	FLinearColor Color = FLinearColor::White;
 	switch (InType)
@@ -89,6 +61,34 @@ void FGLCOutputLog::DestroyLog()
 void FGLCOutputLog::Tick()
 {
 	if(OutputInfo.PengdingInfo.IsEmpty()) return;
+
+	if(!bIsLogWindowShow)
+	{
+		OutputInfo.OutputWindow =
+			SNew(SWindow)
+			.Title(FText::FromString(TEXT("GLCFileHelperOutputLog")))
+			.ClientSize(FVector2D(1100, 500))
+			[
+				SNew(SScrollBox)
+				.Orientation(EOrientation::Orient_Horizontal)
+				.WheelScrollMultiplier(3)
+
+				+ SScrollBox::Slot()
+				.HAlign(EHorizontalAlignment::HAlign_Fill)
+				.VAlign(EVerticalAlignment::VAlign_Fill)
+				[
+					SAssignNew(OutputInfo.ScrollBox, SScrollBox)
+					.Orientation(EOrientation::Orient_Vertical)
+					.WheelScrollMultiplier(3)
+				]
+			];
+		FOnWindowClosed CloseEven;
+		CloseEven.BindLambda([&](const TSharedRef<SWindow>& InWindow) {bIsLogWindowShow = false; });
+		OutputInfo.OutputWindow->SetOnWindowClosed(CloseEven);
+		FSlateApplication::Get().AddWindow(OutputInfo.OutputWindow.ToSharedRef());
+
+		bIsLogWindowShow = true;
+	}
 
 	FGLCOutputPendingInfo NewInfo;
 	if(OutputInfo.PengdingInfo.Dequeue(NewInfo))
