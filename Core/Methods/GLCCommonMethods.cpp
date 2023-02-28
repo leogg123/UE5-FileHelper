@@ -422,10 +422,8 @@ namespace GLCCommonMethods
 				IFileManager::Get().DeleteDirectory(*NewTargetPath,true,true);
 			}
 			
-			if(CheckPath(*EngineWin64BinaryDir) && CheckPath(EngineContentOfSlate)
-				&& CheckPath(ProgramSave))
+			if(CheckPath(*EngineWin64BinaryDir) && CheckPath(EngineContentOfSlate))
 			{
-
 				auto CopyFiles = [&](const FString& FromDir,const FString& ToDir,bool bCopyAll)
 				{
 					if(!CreateDirectory(ToDir)) return;
@@ -439,7 +437,7 @@ namespace GLCCommonMethods
 						}
 						else
 						{
-							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 文件夹存在打包失败的文件"),*FromDir),
+							FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 存在打包失败的文件"),*FromDir),
 								FGLCOutputLog::GLC_WARNING);
 						}
 						return;
