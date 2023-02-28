@@ -3,6 +3,7 @@
 #include <DesktopPlatformModule.h>
 
 #include "GLCFileHelper/Slate/Main/MethodsSlate/AddCopyRight.h"
+#include "GLCFileHelper/Slate/Main/MethodsSlate/DeleteProgram.h"
 #include "GLCFileHelper/Slate/Main/MethodsSlate/FixInclude.h"
 #include "GLCFileHelper/Slate/Main/MethodsSlate/PackageProgram.h"
 #include "GLCFileHelper\Slate\Main\MethodsSlate\GenerateProgram.h"
@@ -129,5 +130,10 @@ namespace GLCSlateMethods
 	void AddFixIncludeWindow()
 	{
 		AddCommonWindow(TEXT("修复头文件包含问题"),SNew(SFixInclude));
+	}
+
+	void AddDeleteProgramWindow()
+	{
+		AddCommonWindow(TEXT("删除独立程序"),SNew(SDeleteProgram));
 	}
 }

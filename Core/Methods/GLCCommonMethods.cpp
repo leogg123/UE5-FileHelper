@@ -690,6 +690,120 @@ namespace GLCCommonMethods
 		FGLCOutputLog::AddNewMessage(TEXT("完成！"));
 	}
 
+	void DeleteProgram(const FString& InProgramName)
+	{
+		if(CheckEnginePath())
+		{
+			FString BinaryPath = GetEnginePath() / TEXT("Engine") / TEXT("Binaries");
+			FString ProgramPath = GetEnginePath() / TEXT("Engine") / TEXT("Programs");
+			FString ProgramSourcePath = GetEnginePath() / TEXT("Engine") / TEXT("Source")
+				/ TEXT("Programs");
+
+			TArray<FString> FileNames;
+			IFileManager::Get().FindFilesRecursive(FileNames,*BinaryPath,TEXT("*"),
+				true,true,false);
+			IFileManager::Get().FindFilesRecursive(FileNames,*ProgramPath,TEXT("*"),
+				true,true,false);
+			IFileManager::Get().FindFilesRecursive(FileNames,*ProgramSourcePath,TEXT("*"),
+			true,true,false);
+
+			static TArray<FString> DeleteFileNames;
+			for(FString& InFileName : FileNames)
+			{
+				if(InFileName.Contains(InProgramName))
+				{
+					DeleteFileNames.Add(InFileName);
+					FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("找到文件 [%s] ")
+						,*InFileName));
+				}
+			}
+			FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("共找到文件 %d 个")
+						,DeleteFileNames.Num()));
+
+			TSharedPtr<SWindow> NewWindow =
+				SNew(SWindow)
+				.ClientSize(FVector2D(350,120))
+				.Title(FText::FromString(TEXT("确认删除文件吗")))
+				.SizingRule(ESizingRule::FixedSize)
+				.SupportsMinimize(false)
+				.SupportsMaximize(false)
+				.UseOSWindowBorder(false)
+				.IsTopmostWindow(true)
+				[
+					SNew(SBorder)
+					[
+						SNew(SVerticalBox)
+
+						+SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(EHorizontalAlignment::HAlign_Center)
+						.VAlign(EVerticalAlignment::VAlign_Center)
+						.Padding(5.f)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString(TEXT("请在log窗口里查看查找到的文件名字")))
+						]
+
+						+SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(EHorizontalAlignment::HAlign_Fill)
+						.VAlign(EVerticalAlignment::VAlign_Bottom)
+						.Padding(5.f)
+						[
+							SNew(SHorizontalBox)
+
+							+SHorizontalBox::Slot()
+							.AutoWidth()
+							.HAlign(EHorizontalAlignment::HAlign_Center)
+							.VAlign(EVerticalAlignment::VAlign_Center)
+							.Padding(FMargin(95,35,0,0))
+							[
+								SNew(SButton)
+								.Text(FText::FromString(TEXT("确认")))
+								.OnReleased_Lambda(
+									[&]()
+									{
+										FSlateApplication::Get().GetActiveTopLevelWindow()->RequestDestroyWindow();
+										FGLCOutputLog::AddNewMessage(TEXT("开始删除文件....."));
+										for(FString& MyFileName : DeleteFileNames)
+										{
+											bool bDelete = false;
+											if(IFileManager::Get().Delete(*MyFileName,true,true))
+											{
+												bDelete = true;
+											}
+											if(IFileManager::Get().DeleteDirectory(*MyFileName,true,true))
+											{
+												bDelete = true;
+											}
+											if(bDelete)
+											{
+												FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 删除成功"),*MyFileName));
+											}
+											else
+											{
+												FGLCOutputLog::AddNewMessage(FString::Printf(TEXT("[%s] 删除失败"),*MyFileName)
+													,FGLCOutputLog::GLC_ERROR);
+											}
+										}
+										FGLCOutputLog::AddNewMessage(TEXT("删除程序完成！"));
+										DeleteFileNames.Empty();
+									})
+							]
+						]
+					]
+
+					/*+SOverlay::Slot()
+					.HAlign(EHorizontalAlignment::HAlign_Fill)
+					.VAlign(EVerticalAlignment::VAlign_Fill)
+					[
+						
+					]*/
+				];
+			FSlateApplication::Get().AddWindow(NewWindow.ToSharedRef());
+		}
+	}
+
 	bool CheckPath(const FString& InPath)
 	{
 		if (!IFileManager::Get().DirectoryExists(*InPath))
@@ -710,14 +824,20 @@ namespace GLCCommonMethods
 		return Ret;
 	}
 
-	bool CheckEnginePathAndPath(const FString& InPath)
+	bool CheckEnginePath()
 	{
-		if (!CheckPath(InPath)) return false;
 		if (!IFileManager::Get().DirectoryExists(*GetEnginePath()))
 		{
 			OpenMessageDialogByString(TEXT("请在设置里设置引擎的目录"));
 			return false;
 		}
+		return true;
+	}
+
+	bool CheckEnginePathAndPath(const FString& InPath)
+	{
+		if (!CheckPath(InPath)) return false;
+		if (!CheckEnginePath()) return false;
 		return true;
 	}
 

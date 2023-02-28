@@ -20,7 +20,7 @@ public:
 
 	void Construct(const FArguments& InArgs);
 
-	void ConstructMySlate(bool bSpawnEditableText = true);
+	void ConstructMySlate(bool bSpawnEditableText = true, bool bSpawnExploreButton = true);
 
 protected:
 	TSharedPtr<SVerticalBox> MyVerticalBox;
@@ -33,9 +33,9 @@ protected:
 	//
 
 	//浏览文件
-	virtual FText GetExplorePathText()						    = 0;
-	virtual FText GetButtonText()							    = 0;
-	virtual void OnExploreButtonReleased()					    = 0;
+	virtual FText GetExplorePathText()							   ;
+	virtual FText GetButtonText()							       ;
+	virtual void OnExploreButtonReleased()						   ;
 	//
 
 	//执行按钮

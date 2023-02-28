@@ -68,10 +68,11 @@ TSharedRef<SWidget> SMainToolBar::GetMethodComboButtons()
 	SAssignNew(ToolBarVerticalBox,SVerticalBox);
 
 	ADD_MY_SLOT(TEXT("生成新的程序"),AddGenerateNewProgramWindow);
+	ADD_MY_SLOT(TEXT("打包独立程序"),AddPackageProgramWindow);
+	ADD_MY_SLOT(TEXT("删除程序"),AddDeleteProgramWindow);
 	ADD_MY_SLOT(TEXT("生成CompoundWidget文件"),AddGenerateCompoundWidgetWindow);
 	ADD_MY_SLOT(TEXT("修改文件字符"),AddModifyCharactersWindow);
 	ADD_MY_SLOT(TEXT("修改文件编码"),AddModifyFileCodingWindow);
-	ADD_MY_SLOT(TEXT("打包独立程序"),AddPackageProgramWindow);
 	ADD_MY_SLOT(TEXT("添加文件权利声明"),AddCopyRightWindow);
 	ADD_MY_SLOT(TEXT("修复头文件包含问题"),AddFixIncludeWindow);
 	

@@ -8,51 +8,53 @@ void SMethodsSlateBase::Construct(const FArguments& InArgs)
 	return;
 }
 
-void SMethodsSlateBase::ConstructMySlate(bool bSpawnEditableText)
+void SMethodsSlateBase::ConstructMySlate(bool bSpawnEditableText, bool bSpawnExploreButton)
 {
 	ChildSlot
 	[
 		SAssignNew(MyVerticalBox,SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(EHorizontalAlignment::HAlign_Left)
-		.VAlign(EVerticalAlignment::VAlign_Top)
-		.Padding(4)
-		[
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.HAlign(EHorizontalAlignment::HAlign_Left)
-			.VAlign(EVerticalAlignment::VAlign_Top)
-			.Padding(4)
-			[
-				SNew(STextBlock)
-				.Text_Lambda([&]()->FText
-				{
-					return GetExplorePathText();
-				})
-			]
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.HAlign(EHorizontalAlignment::HAlign_Left)
-			.VAlign(EVerticalAlignment::VAlign_Top)
-			.Padding(4)
-			[
-				SNew(SButton)
-				.Text(GetButtonText())
-				.OnReleased_Lambda([&]()
-				{
-					OnExploreButtonReleased();
-				})
-			]
-		]
 	];
 
 	if(MyVerticalBox)
 	{
+		if(bSpawnExploreButton)
+		{
+			MyVerticalBox->AddSlot()
+			.AutoHeight()
+			.HAlign(EHorizontalAlignment::HAlign_Left)
+			.VAlign(EVerticalAlignment::VAlign_Top)
+			.Padding(4)
+			[
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.HAlign(EHorizontalAlignment::HAlign_Left)
+				.VAlign(EVerticalAlignment::VAlign_Top)
+				.Padding(4)
+				[
+					SNew(STextBlock)
+					.Text_Lambda([&]()->FText
+					{
+						return GetExplorePathText();
+					})
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.HAlign(EHorizontalAlignment::HAlign_Left)
+				.VAlign(EVerticalAlignment::VAlign_Top)
+				.Padding(4)
+				[
+					SNew(SButton)
+					.Text(GetButtonText())
+					.OnReleased_Lambda([&]()
+					{
+						OnExploreButtonReleased();
+					})
+				]
+			];
+		}
 		if(bSpawnEditableText)
 		{
 			//可编辑的文本框
@@ -104,6 +106,11 @@ FText SMethodsSlateBase::GetButtonText()
 	return FText::FromString(TEXT("浏览路径"));
 }
 
+void SMethodsSlateBase::OnExploreButtonReleased()
+{
+	
+}
+
 FText SMethodsSlateBase::GetDefaultParamText()
 {
 	return FText();
@@ -115,6 +122,11 @@ void SMethodsSlateBase::OnParamTextCommitted(const FText& InText)
 }
 
 FText SMethodsSlateBase::GetParamToolTipText()
+{
+	return FText();
+}
+
+FText SMethodsSlateBase::GetExplorePathText()
 {
 	return FText();
 }

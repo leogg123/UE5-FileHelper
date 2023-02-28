@@ -23,6 +23,8 @@ namespace GLCCommonMethods
 
 	bool CheckPath(const FString& InPath);
 
+	bool CheckEnginePath();
+
 	bool CreateDirectory(const FString& InPath);
 	
 	bool CheckEnginePathAndPath(const FString& InPath);
@@ -60,6 +62,9 @@ namespace GLCCommonMethods
 
 	//修复头文件包含问题
 	void FixInclude(const FString& InSearchDir);
+
+	//删除独立程序
+	void DeleteProgram(const FString& InProgramName);
 	
 	//
 }
